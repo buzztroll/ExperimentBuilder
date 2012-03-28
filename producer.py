@@ -20,7 +20,9 @@ channel = connection.channel()
 
 D_queue.no_ack = True
 queue = D_queue(channel)
+queue.no_ack = True
 queue.declare()
+
 
 producer = Producer(channel, exchange, routing_key=exchange_name)
 
