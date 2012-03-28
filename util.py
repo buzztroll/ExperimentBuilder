@@ -64,39 +64,48 @@ class EPMessage(object):
     def done_with_it(self):
         self.message.ack()
 
-def client_worker_main():
-    EPI = EPInfo()
-    q = EPI.get_kombu_queue()
-    m = EPMessage(q)
-    exe = m.get_parameter('program')
-    print "running %s" % (exe)
-    p = Popen(exe, shell=True, bufsize=1024*1024, stdout=PIPE)
+class ClientWorker(object):
 
-    (osf, outfname) = tempfile.mkstemp()
-    print "staging output to %s" % (outfname)
+    def __init__(self):
+        self.checkpoint_threshold = 1000
+        self.checkpoint_token = "CHECKPOINT:"
 
-    checkpoint_threshold = 1000
-    checkpoint_ctr = 0
-    checkpoint_n = 0
-    token = "CHECKPOINT:"
-    line = p.stdout.readline()
-    while line:
-        ndx = line.find(token)
-        if ndx == 0:
-            checkpoint_ctr = checkpoint_ctr + 1
-            if checkpoint_ctr > checkpoint_threshold:
-                print checkpoint_ctr
-                checkpoint_n = int(line[len(token):])
-                checkpoint_ctr = 0
-                print line
-                print checkpoint_n
-        else:
-            os.write(osf, line)
+    def get_stage_file(self):
+        (self.stage_osf, self.stage_fname) = tempfile.mkstemp()
+        self.checkpoint_ctr = 0
+        print "staging output to %s" % (self.stage_fname)
+
+    def upload_stage_file(self):
+        pass
+
+    def run(self):
+        EPI = EPInfo()
+        q = EPI.get_kombu_queue()
+        m = EPMessage(q)
+        exe = m.get_parameter('program')
+        p = Popen(exe, shell=True, bufsize=1024*1024, stdout=PIPE)
+
+        self.get_stage_file()
 
         line = p.stdout.readline()
-    os.close(osf)
-    m.done_with_it()
-    
+        while line:
+            ndx = line.find(self.checkpoint_token)
+            if ndx == 0:
+                self.checkpoint_ctr = self.checkpoint_ctr + 1
+                if self.checkpoint_ctr > self.checkpoint_threshold:
+                    self.get_stage_file()
+                    checkpoint_n = int(line[len(self.checkpoint_token):])
+            else:
+                os.write(osf, line)
+
+            line = p.stdout.readline()
+        m.done_with_it()
+
+
+def client_worker_main():
+    cw = ClientWorker()
+    cw.run()
+
 def prep_messages():
     total_workers = 1
     EPI = EPInfo()
