@@ -42,7 +42,7 @@ def main(argv=sys.argv):
     if last_checkpoint != 0:
         my_rank = last_checkpoint
         
-    build_mine(sys.stdout, my_rank, worker_count, w, h, 256, 0)
+    build_mine(sys.stdout, my_rank, worker_count, w, h, 256)
 
 
 if __name__ == "__main__":
