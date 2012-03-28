@@ -106,6 +106,7 @@ class ClientWorker(object):
             is_secure = parts.scheme == "https"
             path = parts.path
 
+        print "%s %s %s" % (s3id, s3pw, s3url)
         cf = OrdinaryCallingFormat()
         self.s3conn = S3Connection(s3id, s3pw, host=host, port=port, is_secure=is_secure, calling_format=cf)
 
