@@ -37,8 +37,6 @@ class EPInfo(object):
         self.amqpurl = data[0]
         self.testname = data[1]
 
-
-
     def get_kombu_queue(self):
         if self.queue:
             return self.queue
@@ -72,7 +70,7 @@ class EPMessage(object):
 class ClientWorker(object):
 
     def __init__(self):
-        self.checkpoint_threshold = 1000
+        self.checkpoint_threshold = 1000000
         self.checkpoint_token = "CHECKPOINT:"
         self.s3conn = None
         self.rank = None
@@ -96,7 +94,6 @@ class ClientWorker(object):
         s3url = m.get_parameter('s3url')
         s3id = m.get_parameter('s3id')
         s3pw = m.get_parameter('s3pw')
-
 
         host = None
         port = None
@@ -130,7 +127,7 @@ class ClientWorker(object):
         m = EPMessage(q)
         exe = m.get_parameter('program')
         self.rank = int(m.get_parameter('rank'))
-        self.testname = int(m.get_parameter('testname'))
+        self.testname = m.get_parameter('testname')
         p = Popen(exe, shell=True, bufsize=1024*1024, stdout=PIPE)
 
         self.get_stage_file()
