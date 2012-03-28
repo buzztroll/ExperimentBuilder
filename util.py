@@ -16,6 +16,7 @@ class EPInfo(object):
     def __init__(self):
         # get data
         self.queue = None
+        self.dashi = None
         self._get_from_gitfile()
 
     def _get_from_gitfile(self):
@@ -41,18 +42,18 @@ class EPInfo(object):
     def get_kombu_queue(self):
         if self.queue:
             return self.queue
-
         connection = BrokerConnection(self.amqpurl)
         connection.connect()
-        #exchange = Exchange(name=self.testname, type='direct',
-        #                          durable=False, auto_delete=False)
-        #queue = Queue(name=self.testname, exchange=exchange, routing_key=self.testname,
-        #                 exclusive=True, durable=False, auto_delete=True)
-        #queue.declare()
-
         queue = connection.SimpleQueue(self.testname, serializer='json')
         self.queue = queue
         return self.queue
+
+    def get_dashi_connection(self, name=None):
+        self.exchange = "default_dashi_exchange"
+        if not name:
+            name = self.testname
+        self.dashi = DashiConnection(name, self.amqpurl, self.exchange, ssl=False)
+        return self.dashi
 
 
 message_format = {
@@ -118,9 +119,9 @@ class ClientWorker(object):
         os.remove(self.stage_fname)
 
     def get_s3_conn(self, m):
-        s3url = m.get_parameter('s3url')
-        s3id = m.get_parameter('s3id')
-        s3pw = m.get_parameter('s3pw')
+        s3url = m['s3url']
+        s3id = m['s3id']
+        s3pw = m['s3pw']
 
         host = None
         port = None
@@ -149,18 +150,20 @@ class ClientWorker(object):
 
         self.bucket = self.s3conn.get_bucket(bucketname)
 
+
     def run(self):
         EPI = EPInfo()
-        q = EPI.get_kombu_queue()
-        print "1 len %d" % (len(q))
-        m = EPMessage(q)
-        exe = m.get_parameter('program')
-        self.rank = int(m.get_parameter('rank'))
-        self.testname = m.get_parameter('testname')
+        dashi = EPI.get_dashi_connection()
+        dashi.handle(self.work, "work")
+
+    def work(self, message):
+        exe = message['program']
+        self.rank = int(message['rank'])
+        self.testname = message['testname']
 
         print "my rank is %d" % (self.rank)
 
-        self.get_s3_conn(m)
+        self.get_s3_conn(message)
 
         checkpoint = self.get_latest_checkpoint()
         if checkpoint is None:
@@ -182,7 +185,6 @@ class ClientWorker(object):
                 os.write(self.stage_osf, line)
             line = p.stdout.readline()
         self.upload_stage_file("%sfinal" % (self.checkpoint_token))
-        m.done_with_it()
 
 
 def client_worker_main():
@@ -191,7 +193,7 @@ def client_worker_main():
 
 def prep_messages(total_workers, imgsize=1024):
     EPI = EPInfo()
-    queue = EPI.get_kombu_queue()
+    dashi = EPI.get_dashi_connection(name="producer")
 
     s3url = ""
     if 'EC2_URL' in os.environ:
@@ -206,7 +208,8 @@ def prep_messages(total_workers, imgsize=1024):
                 's3id': s3id,
                 's3pw': s3pw,
                 'testname': 'fractal'}
-        queue.put(msg, serializer='json')
+        dashi.fire(EPI.testname, "work", message=msg)
+
 
 def main(argv=sys.argv):
     if len(argv) > 1:
