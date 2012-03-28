@@ -1,6 +1,7 @@
 from kombu import BrokerConnection
 import os
 from subprocess import Popen, PIPE
+import tempfile
 import urllib
 import sys
 
@@ -71,14 +72,24 @@ def client_worker_main():
     print "running %s" % (exe)
     p = Popen(exe, shell=True, bufsize=1024*1024, stdout=PIPE)
 
+    (osf, outfname) = tempfile.mkstemp()
+    print "staging output to %s" % (outfname)
+
+    checkpoint_threshold = 1000
+    checkpoint_ctr = 0
     token = "CHECKPOINT:"
     line = p.stdout.readline()
     while line:
         ndx = line.find(token)
         if ndx == 0:
-            print line
-        line = p.stdout.readline()
+            checkpoint_ctr = checkpoint_ctr + 1
+            if checkpoint_ctr > checkpoint_threshold:
+                print line
+        else:
+            os.write(osf, line)
 
+        line = p.stdout.readline()
+    osf.close()
     m.done_with_it()
     
 def prep_messages():
