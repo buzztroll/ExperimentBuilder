@@ -84,7 +84,7 @@ class ClientWorker(object):
     def upload_stage_file(self, line):
         checkpoint_n = line.replace(self.checkpoint_token, "")
         print checkpoint_n
-        key_file_name = "%s.%d.%d" % (self.testname, self.rank, checkpoint_n)
+        key_file_name = "%s.%d.%s" % (self.testname, self.rank, checkpoint_n)
         k = boto.s3.key.Key(self.bucket)
         k.key = key_file_name
         k.set_contents_from_filename(self.stage_fname)
