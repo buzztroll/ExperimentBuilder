@@ -77,6 +77,7 @@ def client_worker_main():
 
     checkpoint_threshold = 1000
     checkpoint_ctr = 0
+    checkpoint_n = 0
     token = "CHECKPOINT:"
     line = p.stdout.readline()
     while line:
@@ -84,6 +85,8 @@ def client_worker_main():
         if ndx == 0:
             checkpoint_ctr = checkpoint_ctr + 1
             if checkpoint_ctr > checkpoint_threshold:
+                checkpoint_n = int(line[len(token):])
+                checkpoint_ctr = 0
                 print line
         else:
             os.write(osf, line)
