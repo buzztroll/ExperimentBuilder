@@ -44,7 +44,7 @@ class EPInfo(object):
 
         connection = BrokerConnection(self.amqpurl)
         connection.connect()
-        exchange = Exchange(name=exchange, type='direct',
+        exchange = Exchange(name=self.testname, type='direct',
                                   durable=False, auto_delete=False)
         queue = Queue(name=self.testname, exchange=exchange, routing_key=self.testname,
                          exclusive=True, durable=False, auto_delete=True)
