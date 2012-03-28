@@ -153,7 +153,7 @@ class ClientWorker(object):
         queue = Queue(self.testname, exchange, routing_key=self.testname)
         connection = BrokerConnection(self.amqpurl)
         channel = connection.channel()
-        consumer = Consumer(channel, queue, callbacks=[self.work])
+        consumer = Consumer(channel, queue, callbacks=[self.work], exclusive=False)
         consumer.qos(prefetch_size=0, prefetch_count=0, apply_global=False)
         consumer.no_ack = True
 
