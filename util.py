@@ -64,7 +64,7 @@ message_format = {
 class EPMessage(object):
 
     def __init__(self, queue):
-        self.message = queue.get()
+        self.message = queue.get(block=True, timeout=1)
 
     def get_rank_total(self):
         return (self.message.payload['rank'], self.message.payload['total_workers'])
