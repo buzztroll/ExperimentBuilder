@@ -89,7 +89,7 @@ def client_worker_main():
             os.write(osf, line)
 
         line = p.stdout.readline()
-    osf.close()
+    os.close(osf)
     m.done_with_it()
     
 def prep_messages():
