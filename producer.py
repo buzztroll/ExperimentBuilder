@@ -11,6 +11,8 @@ exchange_name = fptr.readline().strip()
 #exchange_name = "nimbus_xpr_x"
 #amqpurl = "amqp://8331cfb8:eebf4cb5-4517-49d3-9306-440dca9555a1@vm-102.alamo.futuregrid.org:5672/"
 
+print exchange_name
+print amqpurl
 exchange = Exchange(exchange_name, type="direct")
 D_queue = Queue(exchange_name, exchange, routing_key=exchange_name, auto_delete=False)
 connection = BrokerConnection(amqpurl)

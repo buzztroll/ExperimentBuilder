@@ -155,6 +155,7 @@ class ClientWorker(object):
         channel = connection.channel()
         consumer = Consumer(channel, queue, callbacks=[self.work])
         consumer.qos(prefetch_size=0, prefetch_count=0, apply_global=False)
+        consumer.no_ack = True
 
         print "consuming"
         consumer.consume()
