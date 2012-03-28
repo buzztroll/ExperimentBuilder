@@ -67,6 +67,7 @@ def client_worker_main():
     q = EPI.get_kombu_queue()
     m = EPMessage(q)
     exe = m.get_parameter('program')
+    print "running %s" % (exe)
     rc = os.system(exe)
     if rc != 0:
         raise Exception('the program %s failed' % (exe))
@@ -77,7 +78,7 @@ def prep_messages():
     EPI = EPInfo()
     queue = EPI.get_kombu_queue()
     for i in range(0, total_workers):
-        msg = {'program': '/bin/sleep 50', 'total': total_workers, 'rank': i, 'output_url': ""}
+        msg = {'program': 'python node.py ./tmp/ %d %d 1024' % (i, total_workers)}
         queue.put(msg, serializer='json')
 
 def main(argv=sys.argv):
