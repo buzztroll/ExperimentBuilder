@@ -152,6 +152,7 @@ class ClientWorker(object):
     def run(self):
         EPI = EPInfo()
         q = EPI.get_kombu_queue()
+        print "1 len %d" % (len(q))
         m = EPMessage(q)
         exe = m.get_parameter('program')
         self.rank = int(m.get_parameter('rank'))
