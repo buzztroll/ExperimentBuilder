@@ -155,6 +155,7 @@ class ClientWorker(object):
         connection = BrokerConnection(self.amqpurl)
         channel = connection.channel()
         queue = D_queue(channel)
+        queue.declare()
 
         print "about to drain"
         m = queue.get(no_ack=False)
