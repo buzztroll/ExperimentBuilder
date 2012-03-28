@@ -85,6 +85,7 @@ def client_worker_main():
         if ndx == 0:
             checkpoint_ctr = checkpoint_ctr + 1
             if checkpoint_ctr > checkpoint_threshold:
+                print checkpoint_ctr
                 checkpoint_n = int(line[len(token):])
                 checkpoint_ctr = 0
                 print line
