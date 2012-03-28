@@ -1,5 +1,6 @@
 import boto
 from kombu import BrokerConnection
+from kombu.entity import Queue, Exchange
 import os
 from subprocess import Popen, PIPE
 import tempfile
@@ -40,9 +41,16 @@ class EPInfo(object):
     def get_kombu_queue(self):
         if self.queue:
             return self.queue
+
         connection = BrokerConnection(self.amqpurl)
         connection.connect()
-        queue = connection.SimpleQueue(self.testname, serializer='json')
+        exchange = Exchange(name=exchange, type='direct',
+                                  durable=False, auto_delete=False)
+        queue = Queue(name=self.testname, exchange=exchange, routing_key=self.testname,
+                         exclusive=True, durable=False, auto_delete=True)
+        queue.declare()
+
+        #queue = connection.SimpleQueue(self.testname, serializer='json')
         self.queue = queue
         return self.queue
 
