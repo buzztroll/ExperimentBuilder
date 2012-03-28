@@ -87,7 +87,7 @@ def client_worker_main():
             if checkpoint_ctr > checkpoint_threshold:
                 checkpoint_n = int(line[len(token):])
                 checkpoint_ctr = 0
-                print line
+                print line + " " + checkpoint_n
         else:
             os.write(osf, line)
 
