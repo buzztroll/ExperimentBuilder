@@ -81,9 +81,10 @@ class ClientWorker(object):
         checkpoint = 0
         for k in b.list():
             rank_ndx = k.name.find('.')
-            rank_i = int(k.name[:rank_ndx])
+            ndx = k.name.rfind('.') + 1
+            rank_i = int(k.name[rank_ndx:ndx])
             if rank_i == self.rank:
-                ndx = k.name.rfind('.') + 1
+
                 m = k.name[ndx:]
                 if m == "final":
                     return None
