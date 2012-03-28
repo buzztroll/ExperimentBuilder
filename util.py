@@ -94,8 +94,8 @@ class ClientWorker(object):
             if ndx == 0:
                 self.checkpoint_ctr = self.checkpoint_ctr + 1
                 if self.checkpoint_ctr > self.checkpoint_threshold:
-                    self.get_stage_file()
                     self.upload_stage_file(line)
+                    self.get_stage_file()
             else:
                 os.write(self.stage_osf, line)
 
