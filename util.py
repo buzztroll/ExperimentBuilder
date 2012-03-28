@@ -157,7 +157,7 @@ class ClientWorker(object):
         consumer.qos(prefetch_size=0, prefetch_count=0, apply_global=False)
 
         print "consuming"
-        consumer.consume(no_ack=True)
+        consumer.consume()
         print "about to drain"
         self.done = False
         while not self.done:
