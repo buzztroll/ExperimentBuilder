@@ -82,7 +82,7 @@ class ClientWorker(object):
         for k in b.list():
             rank_ndx = k.name.find('.')
             ndx = k.name.rfind('.') + 1
-            rank_i = int(k.name[rank_ndx:ndx])
+            rank_i = int(k.name[rank_ndx+1:ndx-1])
             if rank_i == self.rank:
 
                 m = k.name[ndx:]
