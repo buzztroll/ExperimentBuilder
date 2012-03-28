@@ -14,7 +14,7 @@ exchange_name = fptr.readline().strip()
 print exchange_name
 print amqpurl
 exchange = Exchange(exchange_name, type="direct")
-D_queue = Queue(exchange_name, exchange, routing_key=exchange_name, auto_delete=False)
+D_queue = Queue(exchange_name, exchange, routing_key=exchange_name, auto_delete=False, exclusive=False)
 connection = BrokerConnection(amqpurl)
 channel = connection.channel()
 
