@@ -156,7 +156,7 @@ class ClientWorker(object):
         EPI = EPInfo()
         dashi = EPI.get_dashi_connection()
         dashi.handle(self.work, "work")
-        self.dashi.consume(count=1)
+        dashi.consume(count=1)
         
 
     def work(self, message):
