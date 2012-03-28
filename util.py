@@ -75,7 +75,6 @@ class ClientWorker(object):
         self.s3conn = None
         self.rank = None
         self.testname = None
-        self.get_s3_conn()
 
     def get_stage_file(self):
         (self.stage_osf, self.stage_fname) = tempfile.mkstemp()
@@ -130,6 +129,10 @@ class ClientWorker(object):
         exe = m.get_parameter('program')
         self.rank = int(m.get_parameter('rank'))
         self.testname = m.get_parameter('testname')
+
+        self.get_s3_conn(m)
+
+
         p = Popen(exe, shell=True, bufsize=1024*1024, stdout=PIPE)
 
         self.get_stage_file()
