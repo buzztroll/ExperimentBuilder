@@ -160,6 +160,8 @@ class ClientWorker(object):
         self.done = False
         consumer.consume(no_ack=False)
         print "about to drain"
+        while  not self.done:
+            connection.drain_events()
 
     def work(self, body, message):
         print "work call received"
