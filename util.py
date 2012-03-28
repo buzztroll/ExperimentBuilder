@@ -125,6 +125,7 @@ class ClientWorker(object):
         s3url = m['s3url']
         s3id = m['s3id']
         s3pw = m['s3pw']
+        callername = m['callername']
 
         host = None
         port = None
@@ -194,14 +195,22 @@ class ClientWorker(object):
             line = p.stdout.readline()
         self.upload_stage_file("%sfinal" % (self.checkpoint_token))
 
-
 def client_worker_main():
     cw = ClientWorker()
     cw.run()
 
+
 def prep_messages(total_workers, imgsize=1024):
     EPI = EPInfo()
+    bs_queue_dashi = EPI.get_dashi_connection()
     dashi = EPI.get_dashi_connection(name="producer")
+
+
+    def done_and_back():
+        print "back"
+
+    dashi.handle(done_and_back, "done_and_back")
+    bs_queue_dashi.handle(done_and_back, "done_and_back")
 
     s3url = ""
     if 'EC2_URL' in os.environ:
@@ -215,9 +224,13 @@ def prep_messages(total_workers, imgsize=1024):
                 's3url': s3url,
                 's3id': s3id,
                 's3pw': s3pw,
-                'testname': 'fractal'}
+                'testname': 'fractal',
+                'callername': 'producer'}
         s = json.dumps(msg)
+        print "adding %s" % (s)
         dashi.fire(EPI.testname, "work", message=s)
+
+    dashi.consume(count=total_workers)
 
 
 def main(argv=sys.argv):
