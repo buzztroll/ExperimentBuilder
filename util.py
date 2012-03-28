@@ -81,7 +81,10 @@ class ClientWorker(object):
         checkpoint = 0
         for k in b.list():
             ndx = k.name.rfind('.') + 1
-            i = int(k.name[ndx:])
+            m = k.name[ndx:]
+            if m == "final":
+                return None
+            i = int(m)
             if i > checkpoint:
                 checkpoint = i
         return checkpoint
@@ -144,6 +147,8 @@ class ClientWorker(object):
         self.get_s3_conn(m)
 
         checkpoint = self.get_latest_checkpoint()
+        if checkpoint is None:
+            raise Exception("This one is already complete")
         exe = "%s %d" % (exe, checkpoint)
         p = Popen(exe, shell=True, bufsize=1024*1024, stdout=PIPE)
 
@@ -160,7 +165,7 @@ class ClientWorker(object):
             else:
                 os.write(self.stage_osf, line)
             line = p.stdout.readline()
-        self.upload_stage_file()
+        self.upload_stage_file("%sfinal" % (self.checkpoint_token))
         m.done_with_it()
 
 
