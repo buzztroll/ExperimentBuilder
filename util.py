@@ -1,5 +1,6 @@
 from kombu import BrokerConnection
 import os
+from subprocess import Popen, PIPE
 import urllib
 import sys
 
@@ -68,9 +69,16 @@ def client_worker_main():
     m = EPMessage(q)
     exe = m.get_parameter('program')
     print "running %s" % (exe)
-    rc = os.system(exe)
-    if rc != 0:
-        raise Exception('the program %s failed' % (exe))
+    p = Popen(exe, shell=True, bufsize=1024*1024, stdout=PIPE)
+
+    token = "CHECKPOINT:"
+    line = p.stdout.readline()
+    while line:
+        ndx = line.find(token)
+        if ndx == 0:
+            print line
+        line = p.stdout.readline()
+
     m.done_with_it()
     
 def prep_messages():
@@ -78,7 +86,7 @@ def prep_messages():
     EPI = EPInfo()
     queue = EPI.get_kombu_queue()
     for i in range(0, total_workers):
-        msg = {'program': 'python node.py /usr/local/src/data %d %d 1024' % (i, total_workers)}
+        msg = {'program': 'python node.py 0 %d %d 1024' % (i, total_workers)}
         queue.put(msg, serializer='json')
 
 def main(argv=sys.argv):

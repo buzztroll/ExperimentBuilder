@@ -1,6 +1,6 @@
 import sys
 
-def build_mine(file, k, numThr, w, h, maxIt, skip):
+def build_mine(file, k, numThr, w, h, maxIt):
     wh = w * h
     xa = -2.0
     xb = 1.0
@@ -11,6 +11,7 @@ def build_mine(file, k, numThr, w, h, maxIt, skip):
 
     # each thread only calculates its own share of pixels
     for i in range(k, wh, numThr):
+        file.write("CHECKPOINT:%d\n" % (i))
         kx = i % w
         ky = int(i / w)
         a = xa + xd * kx / (w - 1.0)
@@ -32,14 +33,16 @@ def build_mine(file, k, numThr, w, h, maxIt, skip):
                 break
 
 def main(argv=sys.argv):
-    out_dirname = argv[1]
+    last_checkpoint = argv[1]
     my_rank = int(argv[2])
     worker_count = int(argv[3])
     h = int(argv[4])
     w = h
 
-    fptr = open("%s/out%d.data" % (out_dirname, my_rank), "w")
-    build_mine(fptr, my_rank, worker_count, w, h, 256, 0)
+    if last_checkpoint != 0:
+        my_rank = last_checkpoint
+        
+    build_mine(sys.stdout, my_rank, worker_count, w, h, 256, 0)
 
 
 if __name__ == "__main__":
