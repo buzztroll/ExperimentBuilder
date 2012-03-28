@@ -18,6 +18,7 @@ D_queue = Queue(exchange_name, exchange, routing_key=exchange_name, auto_delete=
 connection = BrokerConnection(amqpurl)
 channel = connection.channel()
 
+D_queue.no_ack = True
 queue = D_queue(channel)
 queue.declare()
 

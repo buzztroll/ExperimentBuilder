@@ -151,6 +151,7 @@ class ClientWorker(object):
     def run(self):
         exchange = Exchange(self.testname, type="direct")
         queue = Queue(self.testname, exchange, routing_key=self.testname, exclusive=False)
+        queue.no_ack = True
         connection = BrokerConnection(self.amqpurl)
         channel = connection.channel()
         consumer = Consumer(channel, queue, callbacks=[self.work])
