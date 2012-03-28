@@ -75,6 +75,7 @@ class ClientWorker(object):
         self.s3conn = None
         self.rank = None
         self.testname = None
+        self.get_s3_conn()
 
     def get_stage_file(self):
         (self.stage_osf, self.stage_fname) = tempfile.mkstemp()
@@ -113,6 +114,7 @@ class ClientWorker(object):
         while bucketname[0] == "/":
             bucketname = bucketname[1:]
         try:
+            print "making bucket %s" % (bucketname)
             self.s3conn.create_bucket(bucketname)
         except Exception, ex:
             print ex
