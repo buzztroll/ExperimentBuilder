@@ -9,6 +9,7 @@ import sys
 from boto.s3.connection import OrdinaryCallingFormat
 from boto.s3.connection import S3Connection
 import urlparse
+from dashi import DashiConnection
 
 
 class EPInfo(object):
