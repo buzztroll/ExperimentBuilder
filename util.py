@@ -1,9 +1,14 @@
+import boto
 from kombu import BrokerConnection
 import os
 from subprocess import Popen, PIPE
 import tempfile
 import urllib
 import sys
+from boto.s3.connection import OrdinaryCallingFormat
+from boto.s3.connection import S3Connection
+import urlparse
+
 
 class EPInfo(object):
 
@@ -66,9 +71,12 @@ class EPMessage(object):
 
 class ClientWorker(object):
 
-    def __init__(self):
+    def __init__(self, rank, testname):
         self.checkpoint_threshold = 1000
         self.checkpoint_token = "CHECKPOINT:"
+        self.s3conn = None
+        self.rank = None
+        self.testname = testname
 
     def get_stage_file(self):
         (self.stage_osf, self.stage_fname) = tempfile.mkstemp()
@@ -78,13 +86,51 @@ class ClientWorker(object):
     def upload_stage_file(self, line):
         checkpoint_n = line.replace(self.checkpoint_token, "")
         print checkpoint_n
+        key_file_name = "%s.%d.%d" % (self.testname, self.rank, checkpoint_n)
+        k = boto.s3.key.Key(self.bucket)
+        k.key = key_file_name
+        k.set_contents_from_filename(self.stage_fname)
         os.close(self.stage_osf)
+
+    def get_s3_conn(self, m):
+        s3url = m.get_parameter('s3url')
+        s3id = m.get_parameter('s3id')
+        s3pw = m.get_parameter('s3pw')
+
+
+        host = None
+        port = None
+        is_secure = True
+        path = "Expr1"
+        if s3url:
+            parts = urlparse.urlparse(s3url)
+            host = parts.hostname
+            port = parts.port
+            is_secure = parts.scheme == "https"
+            path = parts.path
+
+        cf = OrdinaryCallingFormat()
+        self.s3conn = S3Connection(s3id, s3pw, host=host, port=port, is_secure=is_secure, calling_format=cf)
+
+        bucketname = path + "nimbus"
+        while bucketname[0] == "/":
+            bucketname = bucketname[1:]
+        try:
+            self.s3conn.create_bucket(bucketname)
+        except Exception, ex:
+            print ex
+
+        self.bucket = self.s3conn.get_bucket(bucketname)
+
+        return s3conn
 
     def run(self):
         EPI = EPInfo()
         q = EPI.get_kombu_queue()
         m = EPMessage(q)
         exe = m.get_parameter('program')
+        self.rank = int(m.get_parameter('rank'))
+        self.testname = int(m.get_parameter('testname'))
         p = Popen(exe, shell=True, bufsize=1024*1024, stdout=PIPE)
 
         self.get_stage_file()
@@ -99,8 +145,8 @@ class ClientWorker(object):
                     self.get_stage_file()
             else:
                 os.write(self.stage_osf, line)
-
             line = p.stdout.readline()
+            
         m.done_with_it()
 
 
@@ -112,11 +158,20 @@ def prep_messages():
     total_workers = 1
     EPI = EPInfo()
     queue = EPI.get_kombu_queue()
+
+    s3url = ""
+    if 'EC2_URL' in os.environ:
+        s3url = os.environ['EC2_URL']
+    s3id = os.environ['EC2_ACCESS_KEY']
+    s3pw = os.environ['EC2_SECRET_KEY']
+
     for i in range(0, total_workers):
         msg = {'program': 'python node.py 0 %d %d 1024' % (i, total_workers),
-                's3id': '',
-                's3pw': '',
-                's3url': ''}
+               'rank': i,
+                's3url': s3url,
+                's3id': s3id,
+                's3pw': s3pw,
+                'testname': 'fractal'}
         queue.put(msg, serializer='json')
 
 def main(argv=sys.argv):
