@@ -71,12 +71,12 @@ class EPMessage(object):
 
 class ClientWorker(object):
 
-    def __init__(self, rank, testname):
+    def __init__(self):
         self.checkpoint_threshold = 1000
         self.checkpoint_token = "CHECKPOINT:"
         self.s3conn = None
         self.rank = None
-        self.testname = testname
+        self.testname = None
 
     def get_stage_file(self):
         (self.stage_osf, self.stage_fname) = tempfile.mkstemp()
