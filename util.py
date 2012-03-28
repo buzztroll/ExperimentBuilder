@@ -6,22 +6,31 @@ import sys
 class EPInfo(object):
 
     def __init__(self):
-#        nimbus_filename = '/var/nimbus-metadata-server-url'
-#        url = "http://169.254.169.254"
-#        if os.path.exists(nimbus_filename):
-#            fptr = open(nimbus_filename)
-#            url = fptr.readline()
-#            fptr.close()
-#        url = url + "/latest/user-data"
-#
-#        fu = urllib.urlopen(url)
-#        data = fu.readlines()
-#        self.amqpurl = data[0]
-#        self.testname = data[1]
-
-        self.amqpurl = "amqp://guest:guest@localhost:5672//" #data[0]
-        self.testname = "XXX"
+        # get data
         self.queue = None
+        self._get_from_gitfile()
+
+    def _get_from_gitfile(self):
+        filename = "/usr/local/src/ExperimentBuilder/meta"
+        fptr = open(filename, "r")
+        self.amqpurl = fptr.readline().strip()
+        self.testname = fptr.readline().strip()
+
+    def _get_from_metadata(self):
+        nimbus_filename = '/var/nimbus-metadata-server-url'
+        url = "http://169.254.169.254"
+        if os.path.exists(nimbus_filename):
+            fptr = open(nimbus_filename, "r")
+            url = fptr.readline()
+            fptr.close()
+        url = url + "/latest/user-data"
+
+        fu = urllib.urlopen(url)
+        data = fu.readlines()
+        self.amqpurl = data[0]
+        self.testname = data[1]
+
+
 
     def get_kombu_queue(self):
         if self.queue:
@@ -79,4 +88,6 @@ def main(argv=sys.argv):
         print "client"
         client_worker_main()
 
-main()
+if __name__ == "__main__":
+    rc = main()
+    sys.exit(rc)
