@@ -80,13 +80,16 @@ class ClientWorker(object):
         b = self.s3conn.get_bucket(self.bucketname)
         checkpoint = 0
         for k in b.list():
-            ndx = k.name.rfind('.') + 1
-            m = k.name[ndx:]
-            if m == "final":
-                return None
-            i = int(m)
-            if i > checkpoint:
-                checkpoint = i
+            rank_ndx = k.name.find('.')
+            rank_i = int(k.name[:rank_ndx])
+            if rank_i == self.rank:
+                ndx = k.name.rfind('.') + 1
+                m = k.name[ndx:]
+                if m == "final":
+                    return None
+                i = int(m)
+                if i > checkpoint:
+                    checkpoint = i
         print "Checkpoint is %d" % (checkpoint)
         return checkpoint
 
@@ -144,6 +147,8 @@ class ClientWorker(object):
         exe = m.get_parameter('program')
         self.rank = int(m.get_parameter('rank'))
         self.testname = m.get_parameter('testname')
+
+        print "my rank is %d" % (self.rank)
 
         self.get_s3_conn(m)
 
