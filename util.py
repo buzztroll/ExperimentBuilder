@@ -78,7 +78,7 @@ def prep_messages():
     EPI = EPInfo()
     queue = EPI.get_kombu_queue()
     for i in range(0, total_workers):
-        msg = {'program': 'python node.py ./tmp/ %d %d 1024' % (i, total_workers)}
+        msg = {'program': 'python node.py /usr/local/src/data %d %d 1024' % (i, total_workers)}
         queue.put(msg, serializer='json')
 
 def main(argv=sys.argv):
