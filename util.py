@@ -159,6 +159,7 @@ class ClientWorker(object):
 
         print "about to drain"
         m = queue.get(no_ack=False)
+        print m
         self.work(None, m)
 
     def work(self, body, message):
