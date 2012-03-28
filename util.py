@@ -121,8 +121,6 @@ class ClientWorker(object):
 
         self.bucket = self.s3conn.get_bucket(bucketname)
 
-        return s3conn
-
     def run(self):
         EPI = EPInfo()
         q = EPI.get_kombu_queue()
