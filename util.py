@@ -75,8 +75,9 @@ class ClientWorker(object):
         self.checkpoint_ctr = 0
         print "staging output to %s" % (self.stage_fname)
 
-    def upload_stage_file(self):
-        pass
+    def upload_stage_file(self, line):
+        checkpoint_n = line.replace(self.checkpoint_token, "")
+        os.close(self.stage_osf)
 
     def run(self):
         EPI = EPInfo()
@@ -94,9 +95,9 @@ class ClientWorker(object):
                 self.checkpoint_ctr = self.checkpoint_ctr + 1
                 if self.checkpoint_ctr > self.checkpoint_threshold:
                     self.get_stage_file()
-                    checkpoint_n = int(line[len(self.checkpoint_token):])
+                    self.upload_stage_file(line)
             else:
-                os.write(osf, line)
+                os.write(self.stage_osf, line)
 
             line = p.stdout.readline()
         m.done_with_it()
