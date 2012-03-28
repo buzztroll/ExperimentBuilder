@@ -1,6 +1,5 @@
 import boto
-from kombu import BrokerConnection
-from kombu.entity import Queue, Exchange
+from kombu import BrokerConnection, Exchange, Queue, Consumer
 import os
 from subprocess import Popen, PIPE
 import tempfile
@@ -9,24 +8,15 @@ import sys
 from boto.s3.connection import OrdinaryCallingFormat
 from boto.s3.connection import S3Connection
 import urlparse
-from dashi import DashiConnection
-import logging
-import simplejson as json
-logging.basicConfig()
+
 
 class EPInfo(object):
 
     def __init__(self):
         # get data
         self.queue = None
-        self.dashi = None
         self._get_from_gitfile()
 
-    def _get_from_gitfile(self):
-        filename = "/usr/local/src/ExperimentBuilder/meta"
-        fptr = open(filename, "r")
-        self.amqpurl = fptr.readline().strip()
-        self.testname = fptr.readline().strip()
 
     def _get_from_metadata(self):
         nimbus_filename = '/var/nimbus-metadata-server-url'
@@ -45,18 +35,16 @@ class EPInfo(object):
     def get_kombu_queue(self):
         if self.queue:
             return self.queue
+
         connection = BrokerConnection(self.amqpurl)
         connection.connect()
-        queue = connection.SimpleQueue(self.testname, serializer='json')
-        self.queue = queue
-        return self.queue
+        exchange = Exchange(name=self.testname, type='direct',
+                                  durable=False, auto_delete=False)
+        queue = Queue(name=self.testname, exchange=exchange, routing_key=self.testname,
+                         exclusive=True, durable=False, auto_delete=True)
+        #queue.declare()
 
-    def get_dashi_connection(self, name=None):
-        self.exchange = "default_dashi_exchange"
-        if not name:
-            name = self.testname
-        self.dashi = DashiConnection(name, self.amqpurl, self.exchange, ssl=False)
-        return self.dashi
+        self.connection = connection
 
 
 message_format = {
@@ -67,8 +55,8 @@ message_format = {
 
 class EPMessage(object):
 
-    def __init__(self, queue):
-        self.message = queue.get(block=True, timeout=1)
+    def __init__(self, m):
+        self.message = m
 
     def get_rank_total(self):
         return (self.message.payload['rank'], self.message.payload['total_workers'])
@@ -87,6 +75,13 @@ class ClientWorker(object):
         self.s3conn = None
         self.rank = None
         self.testname = None
+        self._get_from_gitfile()
+
+    def _get_from_gitfile(self):
+        filename = "/usr/local/src/ExperimentBuilder/meta"
+        fptr = open(filename, "r")
+        self.amqpurl = fptr.readline().strip()
+        self.testname = fptr.readline().strip()
 
     def get_latest_checkpoint(self):
         b = self.s3conn.get_bucket(self.bucketname)
@@ -122,10 +117,9 @@ class ClientWorker(object):
         os.remove(self.stage_fname)
 
     def get_s3_conn(self, m):
-        s3url = m['s3url']
-        s3id = m['s3id']
-        s3pw = m['s3pw']
-        callername = m['callername']
+        s3url = m.get_parameter('s3url')
+        s3id = m.get_parameter('s3id')
+        s3pw = m.get_parameter('s3pw')
 
         host = None
         port = None
@@ -154,25 +148,32 @@ class ClientWorker(object):
 
         self.bucket = self.s3conn.get_bucket(bucketname)
 
-
     def run(self):
-        EPI = EPInfo()
-        dashi = EPI.get_dashi_connection()
-        dashi.handle(self.work, "work")
-        dashi.consume(count=1)
+        exchange = Exchange(self.testname, type="direct")
+        queue = Queue(self.testname, exchange, routing_key=self.testname)
+        connection = BrokerConnection(self.amqpurl)
+        channel = connection.channel()
+        consumer = Consumer(channel, queue, callbacks=[self.work])
+
+        print "consuming"
+        consumer.consume()
+        print "about to drain"
+        self.done = False
+        while not self.done:
+            connection.drain_events()
+
+    def work(self, body, message):
+        print "work call received"
+        self.done = True
         
-
-    def work(self, message):
-
-        message = json.loads(message)
-
-        exe = message['program']
-        self.rank = int(message['rank'])
-        self.testname = message['testname']
+        m = EPMessage(message)
+        exe = m.get_parameter('program')
+        self.rank = int(m.get_parameter('rank'))
+        self.testname = m.get_parameter('testname')
 
         print "my rank is %d" % (self.rank)
 
-        self.get_s3_conn(message)
+        self.get_s3_conn(m)
 
         checkpoint = self.get_latest_checkpoint()
         if checkpoint is None:
@@ -194,23 +195,16 @@ class ClientWorker(object):
                 os.write(self.stage_osf, line)
             line = p.stdout.readline()
         self.upload_stage_file("%sfinal" % (self.checkpoint_token))
+        m.done_with_it()
+
 
 def client_worker_main():
     cw = ClientWorker()
     cw.run()
 
-
-def prep_messages(total_workers, imgsize=1024):
+def prep_messages(total_workers, imgsize, name):
     EPI = EPInfo()
-    bs_queue_dashi = EPI.get_dashi_connection()
-    dashi = EPI.get_dashi_connection(name="producer")
-
-
-    def done_and_back():
-        print "back"
-
-    dashi.handle(done_and_back, "done_and_back")
-    bs_queue_dashi.handle(done_and_back, "done_and_back")
+    queue = EPI.get_kombu_queue()
 
     s3url = ""
     if 'EC2_URL' in os.environ:
@@ -224,19 +218,13 @@ def prep_messages(total_workers, imgsize=1024):
                 's3url': s3url,
                 's3id': s3id,
                 's3pw': s3pw,
-                'testname': 'fractal',
-                'callername': 'producer'}
-        s = json.dumps(msg)
-        print "adding %s" % (s)
-        dashi.fire(EPI.testname, "work", message=s)
-
-    dashi.consume(count=total_workers)
-
+                'testname': name}
+        queue.put(msg, serializer='json')
 
 def main(argv=sys.argv):
     if len(argv) > 1:
         print "preping messages"
-        prep_messages(int(argv[1]), int(argv[2]))
+        prep_messages(int(argv[1]), int(argv[2]), argv[3])
     else:
         print "client"
         client_worker_main()
