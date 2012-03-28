@@ -77,7 +77,7 @@ class ClientWorker(object):
         self.testname = None
 
     def get_latest_checkpoint(self):
-        b = self.s3conn.get_bucket(sys.argv[1])
+        b = self.s3conn.get_bucket(self.bucketname)
         checkpoint = 0
         for k in b.list():
             ndx = k.name.rfind('.') + 1
@@ -124,9 +124,10 @@ class ClientWorker(object):
         bucketname = path + "nimbus"
         while bucketname[0] == "/":
             bucketname = bucketname[1:]
+        self.bucketname = bucketname
         try:
-            print "making bucket %s" % (bucketname)
-            self.s3conn.create_bucket(bucketname)
+            print "making bucket %s" % (self.bucketname)
+            self.s3conn.create_bucket(self.bucketname)
         except Exception, ex:
             print ex
 
