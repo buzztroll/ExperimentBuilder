@@ -70,7 +70,7 @@ class EPMessage(object):
 class ClientWorker(object):
 
     def __init__(self):
-        self.checkpoint_threshold = 1000000
+        self.checkpoint_threshold = 500000
         self.checkpoint_token = "CHECKPOINT:"
         self.s3conn = None
         self.rank = None
@@ -131,7 +131,6 @@ class ClientWorker(object):
 
         self.get_s3_conn(m)
 
-
         p = Popen(exe, shell=True, bufsize=1024*1024, stdout=PIPE)
 
         self.get_stage_file()
@@ -147,7 +146,7 @@ class ClientWorker(object):
             else:
                 os.write(self.stage_osf, line)
             line = p.stdout.readline()
-            
+        self.upload_stage_file()
         m.done_with_it()
 
 
