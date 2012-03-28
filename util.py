@@ -77,6 +77,7 @@ class ClientWorker(object):
 
     def upload_stage_file(self, line):
         checkpoint_n = line.replace(self.checkpoint_token, "")
+        print checkpoint_n
         os.close(self.stage_osf)
 
     def run(self):
@@ -112,7 +113,10 @@ def prep_messages():
     EPI = EPInfo()
     queue = EPI.get_kombu_queue()
     for i in range(0, total_workers):
-        msg = {'program': 'python node.py 0 %d %d 1024' % (i, total_workers)}
+        msg = {'program': 'python node.py 0 %d %d 1024' % (i, total_workers),
+                's3id': '',
+                's3pw': '',
+                's3url': ''}
         queue.put(msg, serializer='json')
 
 def main(argv=sys.argv):
