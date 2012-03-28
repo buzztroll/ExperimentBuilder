@@ -11,6 +11,7 @@ from boto.s3.connection import S3Connection
 import urlparse
 from dashi import DashiConnection
 import logging
+import simplejson as json
 logging.basicConfig()
 
 class EPInfo(object):
@@ -161,6 +162,9 @@ class ClientWorker(object):
         
 
     def work(self, message):
+
+        message = json.loads(message)
+
         exe = message['program']
         self.rank = int(message['rank'])
         self.testname = message['testname']
@@ -212,7 +216,8 @@ def prep_messages(total_workers, imgsize=1024):
                 's3id': s3id,
                 's3pw': s3pw,
                 'testname': 'fractal'}
-        dashi.fire(EPI.testname, "work", message=msg)
+        s = json.dumps(msg)
+        dashi.fire(EPI.testname, "work", message=s)
 
 
 def main(argv=sys.argv):
