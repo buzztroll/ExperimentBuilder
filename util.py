@@ -156,14 +156,14 @@ class ClientWorker(object):
         channel = connection.channel()
         queue = D_queue(channel)
         queue.declare()
-
+        consumer = Consumer(channel, queue, callbacks=[self.work])
+        self.done = False
+        consumer.consume(no_ack=False)
         print "about to drain"
-        m = queue.get(no_ack=False)
-        print m
-        self.work(None, m)
 
     def work(self, body, message):
         print "work call received"
+        self.done = True
         m = EPMessage(message)
         exe = m.get_parameter('program')
         self.rank = int(m.get_parameter('rank'))
