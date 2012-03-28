@@ -76,6 +76,16 @@ class ClientWorker(object):
         self.rank = None
         self.testname = None
 
+    def get_latest_checkpoint(self):
+        b = self.s3conn.get_bucket(sys.argv[1])
+        checkpoint = 0
+        for k in b.list():
+            ndx = k.name.rfind('.') + 1
+            i = int(k.name[ndx:])
+            if i > checkpoint:
+                checkpoint = i
+        return checkpoint
+
     def get_stage_file(self):
         (self.stage_osf, self.stage_fname) = tempfile.mkstemp()
         self.checkpoint_ctr = 0
@@ -87,8 +97,9 @@ class ClientWorker(object):
         key_file_name = "%s.%d.%s" % (self.testname, self.rank, checkpoint_n)
         k = boto.s3.key.Key(self.bucket)
         k.key = key_file_name
-        k.set_contents_from_filename(self.stage_fname)
         os.close(self.stage_osf)
+        k.set_contents_from_filename(self.stage_fname)
+        os.remove(self.stage_fname)
 
     def get_s3_conn(self, m):
         s3url = m.get_parameter('s3url')
@@ -131,6 +142,8 @@ class ClientWorker(object):
 
         self.get_s3_conn(m)
 
+        checkpoint = self.get_latest_checkpoint()
+        exe = "%s %d" % (exe, checkpoint)
         p = Popen(exe, shell=True, bufsize=1024*1024, stdout=PIPE)
 
         self.get_stage_file()
@@ -166,7 +179,7 @@ def prep_messages():
     s3pw = os.environ['EC2_SECRET_KEY']
 
     for i in range(0, total_workers):
-        msg = {'program': 'python node.py 0 %d %d 1024' % (i, total_workers),
+        msg = {'program': 'python node.py %d %d 1024' % (i, total_workers),
                'rank': i,
                 's3url': s3url,
                 's3id': s3id,
