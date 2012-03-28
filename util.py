@@ -157,6 +157,7 @@ class ClientWorker(object):
         queue = D_queue(channel)
         queue.declare()
         consumer = Consumer(channel, queue, callbacks=[self.work])
+        consumer.qos(prefetch_size=0, prefetch_count=0, apply_global=False)
         self.done = False
         consumer.consume(no_ack=False)
         print "about to drain"
@@ -202,32 +203,10 @@ def client_worker_main():
     cw = ClientWorker()
     cw.run()
 
-def prep_messages(total_workers, imgsize, name):
-    EPI = EPInfo()
-    queue = EPI.get_kombu_queue()
-
-    s3url = ""
-    if 'EC2_URL' in os.environ:
-        s3url = os.environ['EC2_URL']
-    s3id = os.environ['EC2_ACCESS_KEY']
-    s3pw = os.environ['EC2_SECRET_KEY']
-
-    for i in range(0, total_workers):
-        msg = {'program': 'python node.py %d %d %d' % (i, total_workers, imgsize),
-               'rank': i,
-                's3url': s3url,
-                's3id': s3id,
-                's3pw': s3pw,
-                'testname': name}
-        queue.put(msg, serializer='json')
 
 def main(argv=sys.argv):
-    if len(argv) > 1:
-        print "preping messages"
-        prep_messages(int(argv[1]), int(argv[2]), argv[3])
-    else:
-        print "client"
-        client_worker_main()
+    print "client"
+    client_worker_main()
 
 if __name__ == "__main__":
     rc = main()
