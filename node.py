@@ -33,7 +33,7 @@ def build_mine(file, k, numThr, w, h, maxIt):
                 break
 
 def main(argv=sys.argv):
-    last_checkpoint = str(argv[1])
+    last_checkpoint = int(argv[1])
     my_rank = int(argv[2])
     worker_count = int(argv[3])
     h = int(argv[4])
