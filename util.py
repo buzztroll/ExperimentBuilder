@@ -154,9 +154,10 @@ class ClientWorker(object):
         connection = BrokerConnection(self.amqpurl)
         channel = connection.channel()
         consumer = Consumer(channel, queue, callbacks=[self.work])
+        consumer.qos(prefetch_size=0, prefetch_count=0, apply_global=False)
 
         print "consuming"
-        consumer.consume()
+        consumer.consume(no_ack=True)
         print "about to drain"
         self.done = False
         while not self.done:
