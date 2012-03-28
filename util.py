@@ -87,6 +87,7 @@ class ClientWorker(object):
             i = int(m)
             if i > checkpoint:
                 checkpoint = i
+        print "Checkpoint is %d" % (checkpoint)
         return checkpoint
 
     def get_stage_file(self):
@@ -173,8 +174,7 @@ def client_worker_main():
     cw = ClientWorker()
     cw.run()
 
-def prep_messages():
-    total_workers = 1
+def prep_messages(total_workers, imgsize=1024):
     EPI = EPInfo()
     queue = EPI.get_kombu_queue()
 
@@ -185,7 +185,7 @@ def prep_messages():
     s3pw = os.environ['EC2_SECRET_KEY']
 
     for i in range(0, total_workers):
-        msg = {'program': 'python node.py %d %d 1024' % (i, total_workers),
+        msg = {'program': 'python node.py %d %d %d' % (i, total_workers, imgsize),
                'rank': i,
                 's3url': s3url,
                 's3id': s3id,
@@ -196,7 +196,7 @@ def prep_messages():
 def main(argv=sys.argv):
     if len(argv) > 1:
         print "preping messages"
-        prep_messages()
+        prep_messages(int(argv[1]), int(argv[2]))
     else:
         print "client"
         client_worker_main()
