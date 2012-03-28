@@ -18,14 +18,9 @@ D_queue = Queue(exchange_name, exchange, routing_key=exchange_name, auto_delete=
 connection = BrokerConnection(amqpurl)
 channel = connection.channel()
 
-D_queue.no_ack = True
 queue = D_queue(channel)
-queue.no_ack = True
 queue.declare()
-
-
 producer = Producer(channel, exchange, routing_key=exchange_name)
-
 
 total_workers = int(sys.argv[1])
 imgsize = int(sys.argv[2])

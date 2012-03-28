@@ -8,6 +8,7 @@ import sys
 from boto.s3.connection import OrdinaryCallingFormat
 from boto.s3.connection import S3Connection
 import urlparse
+import time
 
 
 class EPInfo(object):
@@ -150,25 +151,17 @@ class ClientWorker(object):
 
     def run(self):
         exchange = Exchange(self.testname, type="direct")
-        queue = Queue(self.testname, exchange, routing_key=self.testname, exclusive=False)
-        queue.no_ack = True
+        D_queue = Queue(self.testname, exchange, routing_key=self.testname, exclusive=False)
         connection = BrokerConnection(self.amqpurl)
         channel = connection.channel()
-        consumer = Consumer(channel, queue, callbacks=[self.work])
-        consumer.qos(prefetch_size=0, prefetch_count=0, apply_global=False)
-        consumer.no_ack = True
+        queue = D_queue(channel)
 
-        print "consuming"
-        consumer.consume()
         print "about to drain"
-        self.done = False
-        while not self.done:
-            connection.drain_events()
+        m = queue.get(no_ack=False)
+        self.work(None, m)
 
     def work(self, body, message):
         print "work call received"
-        self.done = True
-        
         m = EPMessage(message)
         exe = m.get_parameter('program')
         self.rank = int(m.get_parameter('rank'))
