@@ -44,13 +44,13 @@ class EPInfo(object):
 
         connection = BrokerConnection(self.amqpurl)
         connection.connect()
-        exchange = Exchange(name=self.testname, type='direct',
-                                  durable=False, auto_delete=False)
-        queue = Queue(name=self.testname, exchange=exchange, routing_key=self.testname,
-                         exclusive=True, durable=False, auto_delete=True)
-        queue.declare()
+        #exchange = Exchange(name=self.testname, type='direct',
+        #                          durable=False, auto_delete=False)
+        #queue = Queue(name=self.testname, exchange=exchange, routing_key=self.testname,
+        #                 exclusive=True, durable=False, auto_delete=True)
+        #queue.declare()
 
-        #queue = connection.SimpleQueue(self.testname, serializer='json')
+        queue = connection.SimpleQueue(self.testname, serializer='json')
         self.queue = queue
         return self.queue
 
