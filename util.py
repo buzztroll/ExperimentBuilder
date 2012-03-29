@@ -9,6 +9,8 @@ from boto.s3.connection import OrdinaryCallingFormat
 from boto.s3.connection import S3Connection
 import urlparse
 import bz2
+from dashi import DashiConnection
+
 
 def get_dashi_connection(amqpurl):
     exchange = "default_dashi_exchange"
