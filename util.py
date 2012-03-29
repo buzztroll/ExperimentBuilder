@@ -106,7 +106,7 @@ class ClientWorker(object):
     def test_for_checkpoint_time(self, line):
         self.checkpoint_ctr = self.checkpoint_ctr + 1
         if self.checkpoint_ctr > self.checkpoint_threshold:
-            self.dashi.fire(dashiname, "start", rank=self.rank, hostname=get_ip(), message="checkpoint %s" % (line))
+            self.dashi.fire(self.dashiname, "start", rank=self.rank, hostname=get_ip(), message="checkpoint %s" % (line))
             self.upload_stage_file(line)
             self.get_stage_file()
 
@@ -166,9 +166,9 @@ class ClientWorker(object):
         self.rank = int(m.get_parameter('rank'))
         self.testname = m.get_parameter('testname')
 
-        dashiname = m.get_parameter('dashiname')
+        self.dashiname = m.get_parameter('dashiname')
         self.dashi = get_dashi_connection(self.amqpurl)
-        self.dashi.fire(dashiname, "start", rank=self.rank, hostname=get_ip(), message="starting")
+        self.dashi.fire(self.dashiname, "start", rank=self.rank, hostname=get_ip(), message="starting")
 
         print "my rank is %d" % (self.rank)
 
@@ -193,8 +193,8 @@ class ClientWorker(object):
         self.upload_stage_file("%sfinal" % (self.checkpoint_token))
         m.done_with_it()
 
-        print "sending dashi done message to %s" % (dashiname)
-        self.dashi.fire(dashiname, "done", rank=self.rank, hostname=get_ip())
+        print "sending dashi done message to %s" % (self.dashiname)
+        self.dashi.fire(self.dashiname, "done", rank=self.rank, hostname=get_ip())
 
 
 def client_worker_main():
