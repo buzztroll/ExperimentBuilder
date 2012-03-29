@@ -180,7 +180,7 @@ class ClientWorker(object):
         self.upload_stage_file("%sfinal" % (self.checkpoint_token))
         m.done_with_it()
 
-        self.dashi.fire(dashiname, "done", self.rank)
+        self.dashi.fire(dashiname, "done", rank=self.rank)
 
 
 def client_worker_main():

@@ -37,38 +37,46 @@ def main(argv=sys.argv):
     b = con.get_bucket(bucketname)
     f_list = []
     for k in b.list():
-        try:
-            os.remove(k.name)
-        except Exception, ex:
-            print ex
         print "downloading %s" % (k.name)
         zipname = "%s.bz2" % (k.name)
         outfname = "%s.out"
-        k.get_contents_to_filename(zipname)
-
-        print zipname
-        out_f = open(outfname, "w")
-        f = bz2.BZ2File(zipname, "r")
-        sz = 1024 * 1024
         try:
-            data = f.read(sz)
+            os.remove(zipname)
         except Exception, ex:
             print ex
-            data = None
-        while data:
-            out_f.write(data)
-            data = f.read(sz)
-        out_f.close()
-        f.close()
-        f_list.append(outfname)
+        k.get_contents_to_filename(zipname)
+
+#        print zipname
+#        out_f = open(outfname, "w")
+#        f = bz2.BZ2File(zipname, "r")
+#        sz = 1024 * 1024
+#        try:
+#            data = f.read(sz)
+#        except Exception, ex:
+#            print ex
+#            data = None
+#        while data:
+#            out_f.write(data)
+#            data = f.read(sz)
+#        out_f.close()
+#        f.close()
+#        f_list.append(outfname)
+        f_list.append(zipname)
 
     h = w
     l_image = Image.new("RGB", (w, h))
+    line_num = 0
     for f in f_list:
         fptr = open(f, "r")
         for line in fptr:
-            (s_kx, s_ky, s_red, s_green, s_blue) = line.split()
-            l_image.putpixel((int(s_kx), int(s_ky)), (int(s_red), int(s_green), int(s_blue)))
+            try:
+                (s_kx, s_ky, s_red, s_green, s_blue) = line.split()
+                l_image.putpixel((int(s_kx), int(s_ky)), (int(s_red), int(s_green), int(s_blue)))
+            except Exception, ex:
+                print ex
+                print line
+                print line_num
+            line_num = line_num + 1
     l_image.save(out_file, "PNG")
 
 
