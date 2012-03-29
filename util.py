@@ -182,6 +182,7 @@ class ClientWorker(object):
         self.upload_stage_file("%sfinal" % (self.checkpoint_token))
         m.done_with_it()
 
+        print "sending dashi done message to %s" % (dashiname)
         self.dashi.fire(dashiname, "done", rank=self.rank)
 
 
