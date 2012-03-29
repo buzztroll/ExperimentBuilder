@@ -13,7 +13,6 @@ import urlparse
 import bz2
 from dashi import DashiConnection
 import time
-
 logging.basicConfig()
 
 def get_ip():
@@ -101,7 +100,7 @@ class ClientWorker(object):
         k.key = key_file_name
         print "uploading %s to %s" % (self.stage_fname, key_file_name)
         k.set_contents_from_filename(self.stage_fname)
-        #os.remove(self.stage_fname)
+        os.remove(self.stage_fname)
 
     def test_for_checkpoint_time(self, line):
         self.checkpoint_ctr = self.checkpoint_ctr + 1
@@ -194,7 +193,8 @@ class ClientWorker(object):
         m.done_with_it()
 
         print "sending dashi done message to %s" % (self.dashiname)
-        self.dashi.fire(self.dashiname, "done", rank=self.rank, hostname=get_ip())
+        self.dashi.fire(self.
+                        dashiname, "done", rank=self.rank, hostname=get_ip())
 
 
 def client_worker_main():
