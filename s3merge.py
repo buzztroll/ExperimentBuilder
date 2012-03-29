@@ -29,8 +29,6 @@ def get_s3_conn():
 
 def main(argv=sys.argv):
     bucketname = argv[1]
-    w = int(argv[2])
-    out_file = argv[3]
 
     con = get_s3_conn()
     b = con.get_bucket(bucketname)

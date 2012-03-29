@@ -7,8 +7,9 @@ from dashi import DashiConnection
 import uuid
 
 g_done_count = 0
-
 logging.basicConfig()
+logger = logging.getLogger("dashi")
+logger.setLevel(logging.INFO)
 
 def client_finished(rank):
     global g_done_count
