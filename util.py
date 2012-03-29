@@ -90,6 +90,7 @@ class ClientWorker(object):
         k = boto.s3.key.Key(self.bucket)
         k.key = key_file_name
         k.set_contents_from_filename(self.stage_fname)
+        os.system("ls -l %s" % (self.stage_fname))
         os.remove(self.stage_fname)
 
     def get_s3_conn(self, m):
