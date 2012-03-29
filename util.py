@@ -11,6 +11,7 @@ from boto.s3.connection import S3Connection
 import urlparse
 import bz2
 from dashi import DashiConnection
+import time
 
 logging.basicConfig()
 
@@ -87,11 +88,16 @@ class ClientWorker(object):
         print checkpoint_n
         key_file_name = "%s.%d.%s" % (self.testname, self.rank, checkpoint_n)
         k = boto.s3.key.Key(self.bucket)
+
+        for i in range(0, 5):
+            st = os.stat(self.stage_fname)
+            print "file size is %d" %(st.st_size)
+            os.system("sync")
+            time.sleep(1)
+
         k.key = key_file_name
         print "uploading %s to %s" % (self.stage_fname, key_file_name)
         k.set_contents_from_filename(self.stage_fname)
-        st = os.stat(self.stage_fname)
-        print "file size is %d" %(st.st_size)
         #os.remove(self.stage_fname)
 
     def get_s3_conn(self, m):
