@@ -1,2 +1,2 @@
-amqp://nimbus:stuff@vm-229.uc.futuregrid.org:5672/
+amqp://guest:guest@vm-229.uc.futuregrid.org:5672/
 AndAgain4
