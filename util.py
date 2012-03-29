@@ -100,6 +100,12 @@ class ClientWorker(object):
         k.set_contents_from_filename(self.stage_fname)
         #os.remove(self.stage_fname)
 
+    def test_for_checkpoint_time(self, line):
+        self.checkpoint_ctr = self.checkpoint_ctr + 1
+        if self.checkpoint_ctr > self.checkpoint_threshold:
+            self.upload_stage_file(line)
+            self.get_stage_file()
+
     def get_s3_conn(self, m):
         s3url = m.get_parameter('s3url')
         s3id = m.get_parameter('s3id')
@@ -133,6 +139,7 @@ class ClientWorker(object):
         self.bucket = self.s3conn.get_bucket(bucketname)
 
     def run(self):
+        print "exchange = %s, queue = %s, routing_key = %s, amqpurl = %s" % (self.testname, self.testname, self.testname, self.amqpurl)
         exchange = Exchange(self.testname, type="direct")
         D_queue = Queue(self.testname, exchange, routing_key=self.testname, exclusive=False)
         connection = BrokerConnection(self.amqpurl)
@@ -172,10 +179,7 @@ class ClientWorker(object):
         while line:
             ndx = line.find(self.checkpoint_token)
             if ndx == 0:
-                self.checkpoint_ctr = self.checkpoint_ctr + 1
-                if self.checkpoint_ctr > self.checkpoint_threshold:
-                    self.upload_stage_file(line)
-                    self.get_stage_file()
+                self.test_for_checkpoint_time(line)
             else:
                 self.output_file.write(line)
             line = p.stdout.readline()
