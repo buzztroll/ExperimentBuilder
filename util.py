@@ -166,6 +166,8 @@ class ClientWorker(object):
         self.testname = m.get_parameter('testname')
 
         dashiname = m.get_parameter('dashiname')
+        self.dashi = get_dashi_connection(self.amqpurl)
+        self.dashi.fire(dashiname, "start", rank=self.rank, hostname=get_ip())
 
         print "my rank is %d" % (self.rank)
 
@@ -191,7 +193,6 @@ class ClientWorker(object):
         m.done_with_it()
 
         print "sending dashi done message to %s" % (dashiname)
-        self.dashi = get_dashi_connection(self.amqpurl)
         self.dashi.fire(dashiname, "done", rank=self.rank, hostname=get_ip())
 
 

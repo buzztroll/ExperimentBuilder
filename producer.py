@@ -17,12 +17,17 @@ def client_finished(rank=None, hostname=None):
     g_done_count = g_done_count + 1
     print g_done_count
 
+def client_started(rank=None, hostname=None):
+    print "got a start message from %s rank %d" % (rank, hostname)
+
+
 def get_dashi_connection(amqpurl, name, total):
     print datetime.now()
     exchange = "default_dashi_exchange"
     print "dashi %s %s %s" % (name, amqpurl, exchange)
     dashi = DashiConnection(name, amqpurl, exchange, ssl=False)
     dashi.handle(client_finished, "done")
+    dashi.handle(client_started, "start")
     global g_done_count
     while g_done_count < total:
         dashi.consume(count=1)
