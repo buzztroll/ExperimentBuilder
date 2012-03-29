@@ -37,7 +37,9 @@ def main(argv=sys.argv):
     f_list = []
     for k in b.list():
         print "downloading %s" % (k.name)
-        k.get_contents_to_filename(k.name)
+        zipname = "%s.gz" % (k.name)
+        k.get_contents_to_filename(zipname)
+        os.system('gunzip %s' % (zipname))
         f_list.append(k.name)
 
     h = w

@@ -9,6 +9,7 @@ from boto.s3.connection import OrdinaryCallingFormat
 from boto.s3.connection import S3Connection
 import urlparse
 import time
+import zlib
 
 
 class EPInfo(object):
@@ -184,6 +185,7 @@ class ClientWorker(object):
 
         self.get_stage_file()
 
+        compressobj = zlib.compressobj()
         line = p.stdout.readline()
         while line:
             ndx = line.find(self.checkpoint_token)
@@ -193,8 +195,11 @@ class ClientWorker(object):
                     self.upload_stage_file(line)
                     self.get_stage_file()
             else:
-                os.write(self.stage_osf, line)
+                zline = compressobj.compress(line)
+                os.write(self.stage_osf, zline)
             line = p.stdout.readline()
+        zline = compressobj.flush()
+        os.write(self.stage_osf, zline)
         self.upload_stage_file("%sfinal" % (self.checkpoint_token))
         m.done_with_it()
 
