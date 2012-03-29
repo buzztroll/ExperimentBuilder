@@ -178,6 +178,7 @@ class ClientWorker(object):
             line = p.stdout.readline()
         compress_file.close()
 
+        os.system("sync")
         self.upload_stage_file("%sfinal" % (self.checkpoint_token))
         m.done_with_it()
 
