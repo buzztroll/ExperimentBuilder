@@ -106,6 +106,7 @@ class ClientWorker(object):
     def test_for_checkpoint_time(self, line):
         self.checkpoint_ctr = self.checkpoint_ctr + 1
         if self.checkpoint_ctr > self.checkpoint_threshold:
+            self.dashi.fire(dashiname, "start", rank=self.rank, hostname=get_ip(), message="checkpoint %s" % (line))
             self.upload_stage_file(line)
             self.get_stage_file()
 
@@ -167,7 +168,7 @@ class ClientWorker(object):
 
         dashiname = m.get_parameter('dashiname')
         self.dashi = get_dashi_connection(self.amqpurl)
-        self.dashi.fire(dashiname, "start", rank=self.rank, hostname=get_ip())
+        self.dashi.fire(dashiname, "start", rank=self.rank, hostname=get_ip(), message="starting")
 
         print "my rank is %d" % (self.rank)
 

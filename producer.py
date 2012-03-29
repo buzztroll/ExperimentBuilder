@@ -17,8 +17,8 @@ def client_finished(rank=None, hostname=None):
     g_done_count = g_done_count + 1
     print g_done_count
 
-def client_started(rank=None, hostname=None):
-    print "got a start message from %s rank %d" % (rank, hostname)
+def client_started(rank=None, hostname=None, message=None):
+    print "got a start message from %d rank %s | %s" % (rank, hostname, message)
 
 
 def get_dashi_connection(amqpurl, name, total):
