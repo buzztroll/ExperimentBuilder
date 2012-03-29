@@ -16,7 +16,7 @@ def get_dashi_connection(amqpurl, name, total):
     print datetime.now()
     exchange = "default_dashi_exchange"
     dashi = DashiConnection(name, amqpurl, exchange, ssl=False)
-    dashi.handle("done", client_finished)
+    dashi.handle(client_finished, "done")
     dashi.consume(count=total)
     print datetime.now()
 
