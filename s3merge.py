@@ -3,6 +3,7 @@ import os
 import sys
 from PIL import Image
 import urlparse
+import bz2
 
 def get_s3_conn():
     s3url = os.environ['EC2_URL']
@@ -42,9 +43,20 @@ def main(argv=sys.argv):
             print ex
         print "downloading %s" % (k.name)
         zipname = "%s.bz2" % (k.name)
+        outfname = "%s.out"
         k.get_contents_to_filename(zipname)
-        os.system('bunzip2 %s' % (zipname))
-        f_list.append(k.name)
+
+        print zipname
+        out_f = open(outfname, "w")
+        f = bz2.BZ2File(zipname, "r")
+        sz = 1024 * 1024
+        data = f.read(sz)
+        while data:
+            out_f.write(data)
+            data = f.read(sz)
+        out_f.close()
+        f.close()
+        f_list.append(outfname)
 
     h = w
     l_image = Image.new("RGB", (w, h))

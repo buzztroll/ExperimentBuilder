@@ -10,6 +10,7 @@ g_done_count = 0
 def client_finished(rank=None):
     global g_done_count
     g_done_count = g_done_count + 1
+    print g_done_count
 
 
 def get_dashi_connection(amqpurl, name, total):
