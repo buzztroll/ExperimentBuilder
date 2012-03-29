@@ -17,6 +17,7 @@ def client_finished(rank):
 
 def get_dashi_connection(amqpurl, name, total):
     print datetime.now()
+    print "dashi %s %s %s" % (name, amqpurl, exchange)
     exchange = "default_dashi_exchange"
     dashi = DashiConnection(name, amqpurl, exchange, ssl=False)
     dashi.handle(client_finished, "done")
@@ -66,7 +67,7 @@ def main():
                      routing_key=exchange_name,
                      serializer="json")
 
-    dashiconn = get_dashi_connection(amqpurl, dashi_name, total_workers)
+    get_dashi_connection(amqpurl, dashi_name, total_workers)
 
 if __name__ == "__main__":
     rc = main()

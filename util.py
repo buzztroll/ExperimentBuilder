@@ -18,14 +18,9 @@ logging.basicConfig()
 def get_dashi_connection(amqpurl):
     exchange = "default_dashi_exchange"
     name = "nimbusclient"
+    print "using dashi info: %s, %s, %s" % (name, amqpurl, exchange)
     dashi = DashiConnection(name, amqpurl, exchange, ssl=False)
     return dashi
-
-message_format = {
-    'program_prep': None,
-    'program': None,
-    'result_location': None,
-}
 
 class EPMessage(object):
 
