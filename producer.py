@@ -23,8 +23,9 @@ def get_dashi_connection(amqpurl, name, total):
     print "dashi %s %s %s" % (name, amqpurl, exchange)
     dashi = DashiConnection(name, amqpurl, exchange, ssl=False)
     dashi.handle(client_finished, "done")
+    global g_done_count
     while g_done_count < total:
-        dashi.consume()
+        dashi.consume(count=1)
     print datetime.now()
 
 def main():
