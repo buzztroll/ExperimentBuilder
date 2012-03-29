@@ -13,7 +13,7 @@ logger.setLevel(logging.INFO)
 
 def client_finished(rank):
     global g_done_count
-    print "got a client finisehd message"
+    print "got a client finished message"
     g_done_count = g_done_count + 1
     print g_done_count
 

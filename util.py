@@ -45,7 +45,6 @@ class ClientWorker(object):
         self.rank = None
         self.testname = None
         self._get_from_gitfile()
-        self.dashi = get_dashi_connection(self.amqpurl)
         self.output_file = None
 
     def _get_from_gitfile(self):
@@ -183,6 +182,7 @@ class ClientWorker(object):
         m.done_with_it()
 
         print "sending dashi done message to %s" % (dashiname)
+        self.dashi = get_dashi_connection(self.amqpurl)
         self.dashi.fire(dashiname, "done", rank=self.rank)
 
 
