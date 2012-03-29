@@ -17,8 +17,8 @@ def client_finished(rank):
 
 def get_dashi_connection(amqpurl, name, total):
     print datetime.now()
-    print "dashi %s %s %s" % (name, amqpurl, exchange)
     exchange = "default_dashi_exchange"
+    print "dashi %s %s %s" % (name, amqpurl, exchange)
     dashi = DashiConnection(name, amqpurl, exchange, ssl=False)
     dashi.handle(client_finished, "done")
     while g_done_count < total:
