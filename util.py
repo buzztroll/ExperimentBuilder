@@ -91,7 +91,10 @@ class ClientWorker(object):
         key_file_name = "%s.%d.%s" % (self.testname, self.rank, checkpoint_n)
         k = boto.s3.key.Key(self.bucket)
         k.key = key_file_name
+        print "uploading %s to %s" % (self.stage_fname, key_file_name)
         k.set_contents_from_filename(self.stage_fname)
+        st = os.stat(self.stage_fname)
+        print "file size is %d" %(st.st_size)
         os.system("ls -l %s" % (self.stage_fname))
         os.remove(self.stage_fname)
 
