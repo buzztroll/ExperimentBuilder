@@ -14,8 +14,6 @@ from dashi import DashiConnection
 
 logging.basicConfig()
 
-
-
 def get_dashi_connection(amqpurl):
     exchange = "default_dashi_exchange"
     name = "nimbusclient"
@@ -69,7 +67,6 @@ class ClientWorker(object):
             ndx = name.rfind('.') + 1
             rank_i = int(name[rank_ndx+1:ndx-1])
             if rank_i == self.rank:
-
                 m = name[ndx:]
                 if m == "final":
                     return None
@@ -95,8 +92,7 @@ class ClientWorker(object):
         k.set_contents_from_filename(self.stage_fname)
         st = os.stat(self.stage_fname)
         print "file size is %d" %(st.st_size)
-        os.system("ls -l %s" % (self.stage_fname))
-        os.remove(self.stage_fname)
+        #os.remove(self.stage_fname)
 
     def get_s3_conn(self, m):
         s3url = m.get_parameter('s3url')
