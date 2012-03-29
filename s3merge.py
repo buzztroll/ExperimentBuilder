@@ -63,21 +63,21 @@ def main(argv=sys.argv):
 #        f_list.append(outfname)
         f_list.append(zipname)
 
-    h = w
-    l_image = Image.new("RGB", (w, h))
-    line_num = 0
-    for f in f_list:
-        fptr = open(f, "r")
-        for line in fptr:
-            try:
-                (s_kx, s_ky, s_red, s_green, s_blue) = line.split()
-                l_image.putpixel((int(s_kx), int(s_ky)), (int(s_red), int(s_green), int(s_blue)))
-            except Exception, ex:
-                print ex
-                print line
-                print line_num
-            line_num = line_num + 1
-    l_image.save(out_file, "PNG")
+#    h = w
+#    l_image = Image.new("RGB", (w, h))
+#    line_num = 0
+#    for f in f_list:
+#        fptr = open(f, "r")
+#        for line in fptr:
+#            try:
+#                (s_kx, s_ky, s_red, s_green, s_blue) = line.split()
+#                l_image.putpixel((int(s_kx), int(s_ky)), (int(s_red), int(s_green), int(s_blue)))
+#            except Exception, ex:
+#                print ex
+#                print line
+#                print line_num
+#            line_num = line_num + 1
+#    l_image.save(out_file, "PNG")
 
 
 if __name__ == "__main__":
