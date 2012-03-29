@@ -10,7 +10,6 @@ def get_s3_conn():
     s3id = os.environ['EC2_ACCESS_KEY']
     s3pw = os.environ['EC2_SECRET_KEY']
 
-
     host = None
     port = None
     is_secure = True
