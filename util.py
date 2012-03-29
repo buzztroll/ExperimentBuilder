@@ -8,7 +8,7 @@ import sys
 from boto.s3.connection import OrdinaryCallingFormat
 from boto.s3.connection import S3Connection
 import urlparse
-import time
+import bz2
 import zlib
 
 
@@ -185,7 +185,7 @@ class ClientWorker(object):
 
         self.get_stage_file()
 
-        compressobj = zlib.compressobj()
+        compressobj = bz2.BZ2Compressor()
         line = p.stdout.readline()
         while line:
             ndx = line.find(self.checkpoint_token)

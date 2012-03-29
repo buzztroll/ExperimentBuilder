@@ -3,6 +3,7 @@ import os
 import sys
 from PIL import Image
 import urlparse
+import bz
 
 def get_s3_conn():
     s3url = os.environ['EC2_URL']
@@ -37,9 +38,9 @@ def main(argv=sys.argv):
     f_list = []
     for k in b.list():
         print "downloading %s" % (k.name)
-        zipname = "%s.gz" % (k.name)
+        zipname = "%s.bz2" % (k.name)
         k.get_contents_to_filename(zipname)
-        os.system('gunzip %s' % (zipname))
+        os.system('bunzip2 %s' % (zipname))
         f_list.append(k.name)
 
     h = w
