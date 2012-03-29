@@ -157,7 +157,7 @@ class ClientWorker(object):
         queue = D_queue(channel)
         queue.declare()
         consumer = Consumer(channel, queue, callbacks=[self.work])
-        consumer.qos(prefetch_size=0, prefetch_count=0, apply_global=False)
+        consumer.qos(prefetch_size=0, prefetch_count=1, apply_global=False)
         self.done = False
         consumer.consume(no_ack=False)
         print "about to drain"
