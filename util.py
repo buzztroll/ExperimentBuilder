@@ -89,11 +89,8 @@ class ClientWorker(object):
         key_file_name = "%s.%d.%s" % (self.testname, self.rank, checkpoint_n)
         k = boto.s3.key.Key(self.bucket)
 
-        for i in range(0, 5):
-            st = os.stat(self.stage_fname)
-            print "file size is %d" %(st.st_size)
-            os.system("sync")
-            time.sleep(1)
+        st = os.stat(self.stage_fname)
+        print "file size is %d" %(st.st_size)
 
         k.key = key_file_name
         print "uploading %s to %s" % (self.stage_fname, key_file_name)
@@ -169,8 +166,8 @@ class ClientWorker(object):
 
         self.get_stage_file()
 
-        compress_file = bz2.BZ2File(self.stage_fname, "w")
-        #compress_file = open(self.stage_fname, "w")
+        #compress_file = bz2.BZ2File(self.stage_fname, "w")
+        compress_file = open(self.stage_fname, "w")
         line = p.stdout.readline()
         while line:
             ndx = line.find(self.checkpoint_token)
