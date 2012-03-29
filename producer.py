@@ -1,4 +1,5 @@
 from datetime import datetime
+import logging
 import os
 import sys
 from kombu import BrokerConnection, Exchange, Queue, Producer
@@ -6,6 +7,9 @@ from dashi import DashiConnection
 import uuid
 
 g_done_count = 0
+
+logging.basicConfig()
+
 
 def client_finished(rank=None):
     global g_done_count

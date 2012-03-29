@@ -1,5 +1,6 @@
 import boto
 from kombu import BrokerConnection, Exchange, Queue, Consumer
+import logging
 import os
 from subprocess import Popen, PIPE
 import tempfile
@@ -10,6 +11,9 @@ from boto.s3.connection import S3Connection
 import urlparse
 import bz2
 from dashi import DashiConnection
+
+logging.basicConfig()
+
 
 
 def get_dashi_connection(amqpurl):
@@ -86,7 +90,7 @@ class ClientWorker(object):
         k = boto.s3.key.Key(self.bucket)
         k.key = key_file_name
         k.set_contents_from_filename(self.stage_fname)
-        #os.remove(self.stage_fname)
+        os.remove(self.stage_fname)
 
     def get_s3_conn(self, m):
         s3url = m.get_parameter('s3url')
