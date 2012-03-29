@@ -51,6 +51,7 @@ class ClientWorker(object):
         self.testname = None
         self._get_from_gitfile()
         self.dashi = get_dashi_connection(self.amqpurl)
+        self.output_file = None
 
     def _get_from_gitfile(self):
         filename = "/usr/local/src/ExperimentBuilder/meta"
@@ -80,10 +81,12 @@ class ClientWorker(object):
     def get_stage_file(self):
         (self.stage_osf, self.stage_fname) = tempfile.mkstemp()
         os.close(self.stage_osf)
+        self.output_file = bz2.BZ2File(self.stage_fname, "w")
         self.checkpoint_ctr = 0
         print "staging output to %s" % (self.stage_fname)
 
     def upload_stage_file(self, line):
+        self.output_file.close()
         checkpoint_n = line.replace(self.checkpoint_token, "")
         print checkpoint_n
         key_file_name = "%s.%d.%s" % (self.testname, self.rank, checkpoint_n)
@@ -165,9 +168,6 @@ class ClientWorker(object):
         p = Popen(exe, shell=True, bufsize=1024*1024, stdout=PIPE)
 
         self.get_stage_file()
-
-        #compress_file = bz2.BZ2File(self.stage_fname, "w")
-        compress_file = open(self.stage_fname, "w")
         line = p.stdout.readline()
         while line:
             ndx = line.find(self.checkpoint_token)
@@ -177,11 +177,9 @@ class ClientWorker(object):
                     self.upload_stage_file(line)
                     self.get_stage_file()
             else:
-                compress_file.write(line)
+                self.output_file.write(line)
             line = p.stdout.readline()
-        compress_file.close()
 
-        os.system("sync")
         self.upload_stage_file("%sfinal" % (self.checkpoint_token))
         m.done_with_it()
 
