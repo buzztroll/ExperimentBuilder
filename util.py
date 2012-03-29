@@ -2,6 +2,7 @@ import boto
 from kombu import BrokerConnection, Exchange, Queue, Consumer
 import logging
 import os
+import socket
 from subprocess import Popen, PIPE
 import tempfile
 import urllib
@@ -14,6 +15,14 @@ from dashi import DashiConnection
 import time
 
 logging.basicConfig()
+
+def get_ip():
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    s.connect(("gmail.com",80))
+    ip = s.getsockname()[0]
+    s.close()
+    return ip
+
 
 def get_dashi_connection(amqpurl):
     exchange = "default_dashi_exchange"
@@ -183,7 +192,7 @@ class ClientWorker(object):
 
         print "sending dashi done message to %s" % (dashiname)
         self.dashi = get_dashi_connection(self.amqpurl)
-        self.dashi.fire(dashiname, "done", rank=self.rank)
+        self.dashi.fire(dashiname, "done", rank=self.rank, hostname=get_ip())
 
 
 def client_worker_main():
