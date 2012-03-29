@@ -13,6 +13,7 @@ logger.setLevel(logging.INFO)
 
 def client_finished(rank):
     global g_done_count
+    print "got a client finisehd message"
     g_done_count = g_done_count + 1
     print g_done_count
 
@@ -23,7 +24,7 @@ def get_dashi_connection(amqpurl, name, total):
     dashi = DashiConnection(name, amqpurl, exchange, ssl=False)
     dashi.handle(client_finished, "done")
     while g_done_count < total:
-        dashi.consume(count=total)
+        dashi.consume()
     print datetime.now()
 
 def main():
