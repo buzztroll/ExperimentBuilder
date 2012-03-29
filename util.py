@@ -10,7 +10,7 @@ from boto.s3.connection import S3Connection
 import urlparse
 import bz2
 
-def get_dashi_connection(self, amqpurl):
+def get_dashi_connection(amqpurl):
     exchange = "default_dashi_exchange"
     name = "nimbusclient"
     dashi = DashiConnection(name, amqpurl, exchange, ssl=False)
