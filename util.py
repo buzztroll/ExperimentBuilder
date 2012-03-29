@@ -75,6 +75,7 @@ class ClientWorker(object):
 
     def get_stage_file(self):
         (self.stage_osf, self.stage_fname) = tempfile.mkstemp()
+        os.close(self.stage_osf)
         self.checkpoint_ctr = 0
         print "staging output to %s" % (self.stage_fname)
 
@@ -84,7 +85,6 @@ class ClientWorker(object):
         key_file_name = "%s.%d.%s" % (self.testname, self.rank, checkpoint_n)
         k = boto.s3.key.Key(self.bucket)
         k.key = key_file_name
-        os.close(self.stage_osf)
         k.set_contents_from_filename(self.stage_fname)
         os.remove(self.stage_fname)
 
@@ -157,7 +157,7 @@ class ClientWorker(object):
 
         self.get_stage_file()
 
-        compressobj = bz2.BZ2Compressor()
+        compress_file = bz2.BZ2File(self.stage_fname, "w")
         line = p.stdout.readline()
         while line:
             ndx = line.find(self.checkpoint_token)
@@ -167,11 +167,10 @@ class ClientWorker(object):
                     self.upload_stage_file(line)
                     self.get_stage_file()
             else:
-                zline = compressobj.compress(line)
-                os.write(self.stage_osf, zline)
+                compress_file.write(line)
             line = p.stdout.readline()
-        zline = compressobj.flush()
-        os.write(self.stage_osf, zline)
+        compress_file.close()
+
         self.upload_stage_file("%sfinal" % (self.checkpoint_token))
         m.done_with_it()
 

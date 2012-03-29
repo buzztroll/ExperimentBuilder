@@ -3,7 +3,6 @@ import os
 import sys
 from PIL import Image
 import urlparse
-import bz
 
 def get_s3_conn():
     s3url = os.environ['EC2_URL']
@@ -37,6 +36,10 @@ def main(argv=sys.argv):
     b = con.get_bucket(bucketname)
     f_list = []
     for k in b.list():
+        try:
+            os.remove(k.name)
+        except Exception, ex:
+            print ex
         print "downloading %s" % (k.name)
         zipname = "%s.bz2" % (k.name)
         k.get_contents_to_filename(zipname)
