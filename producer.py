@@ -1,16 +1,24 @@
+from datetime import datetime
 import os
 import sys
 from kombu import BrokerConnection, Exchange, Queue, Producer
 from dashi import DashiConnection
+import uuid
 
-
-def get_dashi_connection(self, name):
-    self.exchange = "default_dashi_exchange"
-    self.dashi = DashiConnection(name, self.amqpurl, self.exchange, ssl=False)
-    return self.dashi
+g_done_count = 0
 
 def client_finished(rank=None):
-    pass
+    global g_done_count
+    g_done_count = g_done_count + 1
+
+
+def get_dashi_connection(amqpurl, name, total):
+    print datetime.now()
+    exchange = "default_dashi_exchange"
+    dashi = DashiConnection(name, amqpurl, exchange, ssl=False)
+    dashi.handle("done", client_finished)
+    dashi.consume(count=total)
+    print datetime.now()
 
 
 def main():
@@ -40,21 +48,22 @@ def main():
     s3id = os.environ['EC2_ACCESS_KEY']
     s3pw = os.environ['EC2_SECRET_KEY']
 
-
-
+    dashi_name = str(uuid.uuid4()).split('-')[0]
     for i in range(0, total_workers):
         msg = {'program': 'python node.py %d %d %d' % (i, total_workers, imgsize),
                 'rank': i,
                 's3url': s3url,
                 's3id': s3id,
                 's3pw': s3pw,
-                'testname': name}
+                'testname': name,
+                'dashiname': dashi_name}
         print "sending message %s" % (str(msg))
         producer.publish(msg,
                      exchange=exchange,
                      routing_key=exchange_name,
                      serializer="json")
 
+    dashiconn = get_dashi_connection(amqpurl, dashi_name, total_workers)
 
 if __name__ == "__main__":
     rc = main()

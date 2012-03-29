@@ -9,7 +9,12 @@ from boto.s3.connection import OrdinaryCallingFormat
 from boto.s3.connection import S3Connection
 import urlparse
 import bz2
-import zlib
+
+def get_dashi_connection(self, amqpurl):
+    exchange = "default_dashi_exchange"
+    name = "nimbusclient"
+    dashi = DashiConnection(name, amqpurl, exchange, ssl=False)
+    return dashi
 
 
 class EPInfo(object):
@@ -18,6 +23,8 @@ class EPInfo(object):
         # get data
         self.queue = None
         self._get_from_gitfile()
+
+
 
 
     def _get_from_metadata(self):
@@ -78,6 +85,7 @@ class ClientWorker(object):
         self.rank = None
         self.testname = None
         self._get_from_gitfile()
+        self.dashi = get_dashi_connection(self.amqpurl)
 
     def _get_from_gitfile(self):
         filename = "/usr/local/src/ExperimentBuilder/meta"
@@ -173,6 +181,8 @@ class ClientWorker(object):
         self.rank = int(m.get_parameter('rank'))
         self.testname = m.get_parameter('testname')
 
+        dashiname = m.get_parameter('dashiname')
+
         print "my rank is %d" % (self.rank)
 
         self.get_s3_conn(m)
@@ -202,6 +212,8 @@ class ClientWorker(object):
         os.write(self.stage_osf, zline)
         self.upload_stage_file("%sfinal" % (self.checkpoint_token))
         m.done_with_it()
+
+        self.dashi.fire(dashiname, "done", self.rank)
 
 
 def client_worker_main():
