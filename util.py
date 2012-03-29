@@ -63,12 +63,14 @@ class ClientWorker(object):
         b = self.s3conn.get_bucket(self.bucketname)
         checkpoint = 0
         for k in b.list():
-            rank_ndx = k.name.find('.')
-            ndx = k.name.rfind('.') + 1
-            rank_i = int(k.name[rank_ndx+1:ndx-1])
+            name = k.name.replace(".bz2", "")
+
+            rank_ndx =name.find('.')
+            ndx = name.rfind('.') + 1
+            rank_i = int(name[rank_ndx+1:ndx-1])
             if rank_i == self.rank:
 
-                m = k.name[ndx:]
+                m = name[ndx:]
                 if m == "final":
                     return None
                 i = int(m)
@@ -162,8 +164,8 @@ class ClientWorker(object):
 
         self.get_stage_file()
 
-        #compress_file = bz2.BZ2File(self.stage_fname, "w")
-        compress_file = open(self.stage_fname, "w")
+        compress_file = bz2.BZ2File(self.stage_fname, "w")
+        #compress_file = open(self.stage_fname, "w")
         line = p.stdout.readline()
         while line:
             ndx = line.find(self.checkpoint_token)
