@@ -50,7 +50,11 @@ def main(argv=sys.argv):
         out_f = open(outfname, "w")
         f = bz2.BZ2File(zipname, "r")
         sz = 1024 * 1024
-        data = f.read(sz)
+        try:
+            data = f.read(sz)
+        except Exception, ex:
+            print ex
+            data = None
         while data:
             out_f.write(data)
             data = f.read(sz)

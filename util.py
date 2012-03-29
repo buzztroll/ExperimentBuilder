@@ -162,7 +162,8 @@ class ClientWorker(object):
 
         self.get_stage_file()
 
-        compress_file = bz2.BZ2File(self.stage_fname, "w")
+        #compress_file = bz2.BZ2File(self.stage_fname, "w")
+        compress_file = open(self.stage_fname, "w")
         line = p.stdout.readline()
         while line:
             ndx = line.find(self.checkpoint_token)
