@@ -1,2 +1,2 @@
-amqp://guest:guest@vm-229.uc.futuregrid.org:5672/
+amqp://guest:guest@ec2-23-20-125-18.compute-1.amazonaws.com:5672/
 SierraTes2
