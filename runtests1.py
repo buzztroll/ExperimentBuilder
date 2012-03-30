@@ -14,7 +14,7 @@ while picture_size < max_picture_size:
     worker_count = 1
     while worker_count <= max_worker_count:
 
-        name = "exp%d.%d" % (worker_count, picture_size)
+        name = "exp%d_%d" % (worker_count, picture_size)
         start_tm = datetime.now()
         cmd = "python producer.py %d %d %s" % (worker_count, picture_size, name)
         print cmd
