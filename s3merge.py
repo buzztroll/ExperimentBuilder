@@ -6,7 +6,10 @@ import urlparse
 import bz2
 
 def get_s3_conn():
-    s3url = os.environ['EC2_URL']
+    try:
+        s3url = os.environ['EC2_URL']
+    except:
+        s3url = None
     s3id = os.environ['EC2_ACCESS_KEY']
     s3pw = os.environ['EC2_SECRET_KEY']
 
@@ -23,7 +26,10 @@ def get_s3_conn():
 
     print "%s %s %s" % (s3id, s3pw, s3url)
     cf = OrdinaryCallingFormat()
-    s3conn = S3Connection(s3id, s3pw, host=host, port=port, is_secure=is_secure, calling_format=cf)
+    if s3url:
+        s3conn = S3Connection(s3id, s3pw, host=host, port=port, is_secure=is_secure, calling_format=cf)
+    else:
+        s3conn = S3Connection(s3id, s3pw, calling_format=cf)
     return s3conn
 
 

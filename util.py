@@ -117,7 +117,7 @@ class ClientWorker(object):
         host = None
         port = None
         is_secure = True
-        path = "Expr1"
+        path = "expr1"
         if s3url:
             parts = urlparse.urlparse(s3url)
             host = parts.hostname
@@ -127,7 +127,10 @@ class ClientWorker(object):
 
         print "%s %s %s" % (s3id, s3pw, s3url)
         cf = OrdinaryCallingFormat()
-        self.s3conn = S3Connection(s3id, s3pw, host=host, port=port, is_secure=is_secure, calling_format=cf)
+        if s3url:
+            self.s3conn = S3Connection(s3id, s3pw, host=host, port=port, is_secure=is_secure, calling_format=cf)
+        else:
+            self.s3conn = S3Connection(s3id, s3pw, calling_format=cf)
 
         bucketname = path + "nimbus"
         while bucketname[0] == "/":
