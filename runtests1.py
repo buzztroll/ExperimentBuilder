@@ -3,7 +3,7 @@ import os
 import sys
 
 max_worker_count = 16
-max_picture_size = 1024 * 16
+max_picture_size = 1024 * 2
 picture_size = 1024
 
 datafile = sys.argv[1]
@@ -17,6 +17,7 @@ while picture_size < max_picture_size:
         name = "exp%d.%d" % (worker_count, picture_size)
         start_tm = datetime.now()
         cmd = "python producer.py %d %d %s" % (worker_count, picture_size, name)
+        print cmd
         rc = os.system(cmd)
         end_tm = datetime.now()
 
