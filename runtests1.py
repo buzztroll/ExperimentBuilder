@@ -12,7 +12,7 @@ outf = open(datafile, "w")
 
 while picture_size < max_picture_size:
     worker_count = 1
-    while worker_count < max_worker_count:
+    while worker_count <= max_worker_count:
 
         name = "exp%d.%d" % (worker_count, picture_size)
         start_tm = datetime.now()
@@ -22,7 +22,7 @@ while picture_size < max_picture_size:
         end_tm = datetime.now()
 
         tm = end_tm - start_tm
-        outf.write("%s %d\n" % (name, tm.total_seconds()))
+        outf.write("%s %d %d %d\n" % (name, worker_count, picture_size, tm.total_seconds()))
 
         worker_count = worker_count + 1
     

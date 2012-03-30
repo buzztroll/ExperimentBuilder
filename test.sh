@@ -9,7 +9,9 @@ do
  echo "starting"
  for i in `seq 1 $proc_count`
  do
-    python util.py
+    echo $i
+    python util.py &
  done
+ wait
  echo "ended"
 done
