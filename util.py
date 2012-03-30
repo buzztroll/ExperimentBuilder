@@ -132,7 +132,7 @@ class ClientWorker(object):
         else:
             self.s3conn = S3Connection(s3id, s3pw, calling_format=cf)
 
-        bucketname = path + "nimbus"
+        bucketname = self.testname + "nimbus"
         while bucketname[0] == "/":
             bucketname = bucketname[1:]
         self.bucketname = bucketname
