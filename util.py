@@ -20,14 +20,6 @@ def get_ip():
     s.close()
     return ip
 
-
-def get_dashi_connection(amqpurl):
-    exchange = "default_dashi_exchange"
-    name = "nimbusclient"
-    print "using dashi info: %s, %s, %s" % (name, amqpurl, exchange)
-    dashi = DashiConnection(name, amqpurl, exchange, ssl=False)
-    return dashi
-
 class EPMessage(object):
 
     def __init__(self, m):
@@ -56,11 +48,17 @@ class ClientWorker(object):
         self.ip = get_ip()
         self.host_id = "%s__%s" % (self.ip, str(self.core))
 
+    def get_dashi_connection(self, amqpurl):
+        exchange = "default_exchange"
+        print "using dashi info: %s, %s, %s" % (self.worker_queue_name, amqpurl, exchange)
+        dashi = DashiConnection(self.worker_queue_name, amqpurl, exchange, ssl=False)
+        return dashi
+
     def _get_from_gitfile(self):
         filename = "/usr/local/src/ExperimentBuilder/meta"
         fptr = open(filename, "r")
         self.amqpurl = fptr.readline().strip()
-        self.testname = fptr.readline().strip()
+        self.worker_queue_name = fptr.readline().strip()
 
     def get_latest_checkpoint(self):
         b = self.s3conn.get_bucket(self.bucketname)
@@ -111,9 +109,9 @@ class ClientWorker(object):
             self.get_stage_file()
 
     def get_s3_conn(self, m):
-        s3url = m.get_parameter('s3url')
-        s3id = m.get_parameter('s3id')
-        s3pw = m.get_parameter('s3pw')
+        s3url = m['s3url']
+        s3id = m['s3id']
+        s3pw = m['s3pw']
 
         host = None
         port = None
@@ -146,36 +144,26 @@ class ClientWorker(object):
         self.bucket = self.s3conn.get_bucket(bucketname)
 
     def run(self):
-        print "exchange = %s, queue = %s, routing_key = %s, amqpurl = %s" % (self.testname, self.testname, self.testname, self.amqpurl)
-        exchange = Exchange(self.testname, type="direct")
-        D_queue = Queue(self.testname, exchange, routing_key=self.testname, exclusive=False)
-        connection = BrokerConnection(self.amqpurl)
-        channel = connection.channel()
-        queue = D_queue(channel)
-        queue.declare()
-        consumer = Consumer(channel, queue, callbacks=[self.work])
-        consumer.qos(prefetch_size=0, prefetch_count=1, apply_global=False)
+        self.dashi = self.get_dashi_connection(self.amqpurl)
         self.done = False
-        consumer.consume(no_ack=False)
-        print "about to drain"
-        while  not self.done:
-            connection.drain_events()
+        self.dashi.handle(self.work, "work_queue")
 
-    def work(self, body, message):
+        while not self.done:
+            print "X"
+            self.dashi.consume(count=1)
+
+
+    def work(self, workload=None):
         print "work call received"
         self.done = True
-        m = EPMessage(message)
-        exe = m.get_parameter('program')
-        self.rank = int(m.get_parameter('rank'))
-        self.testname = m.get_parameter('testname')
+        exe = workload['program']
+        self.rank = int(workload['rank'])
+        self.testname = workload['testname']
 
-        self.dashiname = m.get_parameter('dashiname')
-        self.dashi = get_dashi_connection(self.amqpurl)
+        self.dashiname = workload['dashiname']
         self.dashi.fire(self.dashiname, "start", rank=self.rank, hostname=self.host_id, message="CLIENT_START")
 
-        print "my rank is %d" % (self.rank)
-
-        self.get_s3_conn(m)
+        self.get_s3_conn(workload)
 
         checkpoint = self.get_latest_checkpoint()
         if checkpoint is None:
@@ -194,7 +182,6 @@ class ClientWorker(object):
             line = p.stdout.readline()
 
         self.upload_stage_file("%sfinal" % (self.checkpoint_token))
-        m.done_with_it()
 
         print "sending dashi done message to %s" % (self.dashiname)
         self.dashi.fire(self.dashiname, "done", rank=self.rank, hostname=self.host_id)
