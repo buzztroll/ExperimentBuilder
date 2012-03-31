@@ -146,14 +146,14 @@ class ClientWorker(object):
     def run(self):
         self.dashi = self.get_dashi_connection(self.amqpurl)
         self.done = False
-        self.dashi.handle(self.work, "work_queue")
+        self.dashi.handle(self.work_queue, "work_queue")
 
         while not self.done:
             print "X"
             self.dashi.consume(count=1)
 
 
-    def work(self, workload=None):
+    def work_queue(self, workload=None):
         print "work call received"
         self.done = True
         exe = workload['program']
