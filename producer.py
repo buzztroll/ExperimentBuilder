@@ -26,6 +26,9 @@ def get_dashi_connection(amqpurl, name, total):
     dashi = DashiConnection(name, amqpurl, exchange, ssl=False)
     dashi.handle(client_finished, "done")
     dashi.handle(client_started, "start")
+    return dashi
+
+def dashi_wait(dashi, total):
     global g_done_count
     while g_done_count < total:
         dashi.consume(count=1)
@@ -50,8 +53,8 @@ def main():
     name = sys.argv[3]
 
     s3url = ""
-    if 'EC2_URL' in os.environ:
-        s3url = os.environ['EC2_URL']
+    if 'S3_URL' in os.environ:
+        s3url = os.environ['S3_URL']
     s3id = os.environ['EC2_ACCESS_KEY']
     s3pw = os.environ['EC2_SECRET_KEY']
 
@@ -59,6 +62,8 @@ def main():
     print "XXX PRODUCER_STARTING %s" % (str(n))
 
     dashi_name = str(uuid.uuid4()).split('-')[0]
+    dashi_con = get_dashi_connection(amqpurl, dashi_name, total_workers)
+    print "dashi name %s" % (dashi_name)
     for i in range(0, total_workers):
         msg = {'program': 'python node.py %d %d %d' % (i, total_workers, imgsize),
                 'rank': i,
@@ -72,7 +77,8 @@ def main():
                      routing_key=exchange_name,
                      serializer="json")
 
-    get_dashi_connection(amqpurl, dashi_name, total_workers)
+    dashi_wait(dashi_con, total_workers)
+
 
     n = datetime.now()
     print "XXX PRODUCER_DONE %s" % (str(n))
