@@ -1,5 +1,6 @@
 from datetime import datetime
 import logging
+logging.basicConfig(level=logging.DEBUG)
 import os
 import sys
 from kombu import BrokerConnection, Exchange, Queue, Producer
@@ -7,9 +8,6 @@ from dashi import DashiConnection
 import uuid
 
 g_done_count = 0
-logging.basicConfig()
-logger = logging.getLogger("dashi")
-logger.setLevel(logging.INFO)
 
 def client_finished(rank=None, hostname=None):
     global g_done_count
@@ -77,6 +75,7 @@ def main():
                      routing_key=exchange_name,
                      serializer="json")
 
+    print "waiting for dashi"
     dashi_wait(dashi_con, total_workers)
 
 
