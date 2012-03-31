@@ -1,6 +1,7 @@
 import boto
-from kombu import BrokerConnection, Exchange, Queue, Consumer
 import logging
+logging.basicConfig(level=logging.DEBUG)
+from kombu import BrokerConnection, Exchange, Queue, Consumer
 import os
 import socket
 from subprocess import Popen, PIPE
@@ -11,7 +12,6 @@ from boto.s3.connection import S3Connection
 import urlparse
 import bz2
 from dashi import DashiConnection
-logging.basicConfig()
 
 def get_ip():
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
