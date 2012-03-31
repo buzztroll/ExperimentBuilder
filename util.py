@@ -5,14 +5,12 @@ import os
 import socket
 from subprocess import Popen, PIPE
 import tempfile
-import urllib
 import sys
 from boto.s3.connection import OrdinaryCallingFormat
 from boto.s3.connection import S3Connection
 import urlparse
 import bz2
 from dashi import DashiConnection
-import time
 logging.basicConfig()
 
 def get_ip():
@@ -46,7 +44,7 @@ class EPMessage(object):
 
 class ClientWorker(object):
 
-    def __init__(self):
+    def __init__(self, core):
         self.checkpoint_threshold = 500000
         self.checkpoint_token = "CHECKPOINT:"
         self.s3conn = None
@@ -54,6 +52,9 @@ class ClientWorker(object):
         self.testname = None
         self._get_from_gitfile()
         self.output_file = None
+        self.core = core
+        self.ip = get_ip()
+        self.host_id = "%s__%s" % (self.ip, str(self.core))
 
     def _get_from_gitfile(self):
         filename = "/usr/local/src/ExperimentBuilder/meta"
@@ -105,7 +106,7 @@ class ClientWorker(object):
     def test_for_checkpoint_time(self, line):
         self.checkpoint_ctr = self.checkpoint_ctr + 1
         if self.checkpoint_ctr > self.checkpoint_threshold:
-            self.dashi.fire(self.dashiname, "start", rank=self.rank, hostname=get_ip(), message="checkpoint %s" % (line))
+            self.dashi.fire(self.dashiname, "start", rank=self.rank, hostname=self.host_id, message="CLIENT_CHECKPOINT_%s" % (line))
             self.upload_stage_file(line)
             self.get_stage_file()
 
@@ -170,7 +171,7 @@ class ClientWorker(object):
 
         self.dashiname = m.get_parameter('dashiname')
         self.dashi = get_dashi_connection(self.amqpurl)
-        self.dashi.fire(self.dashiname, "start", rank=self.rank, hostname=get_ip(), message="starting")
+        self.dashi.fire(self.dashiname, "start", rank=self.rank, hostname=self.host_id, message="CLIENT_START")
 
         print "my rank is %d" % (self.rank)
 
@@ -196,18 +197,14 @@ class ClientWorker(object):
         m.done_with_it()
 
         print "sending dashi done message to %s" % (self.dashiname)
-        self.dashi.fire(self.
-                        dashiname, "done", rank=self.rank, hostname=get_ip())
-
-
-def client_worker_main():
-    cw = ClientWorker()
-    cw.run()
+        self.dashi.fire(self.dashiname, "done", rank=self.rank, hostname=self.host_id)
 
 
 def main(argv=sys.argv):
     print "client"
-    client_worker_main()
+    core = sys.argv[1]
+    cw = ClientWorker(core)
+    cw.run()
 
 if __name__ == "__main__":
     rc = main()

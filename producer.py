@@ -13,25 +13,22 @@ logger.setLevel(logging.INFO)
 
 def client_finished(rank=None, hostname=None):
     global g_done_count
-    print "got a client finished message from %d rank %s" % (rank, hostname)
+    n = datetime.now()
+    print "XXX CLIENT_DONE %d %s %s" % (rank, hostname, n)
     g_done_count = g_done_count + 1
-    print g_done_count
 
 def client_started(rank=None, hostname=None, message=None):
-    print "got a message from %d rank %s | %s" % (rank, hostname, message)
-
+    n = datetime.now()
+    print "XXX %s %d %s %s" % (message, rank, hostname, str(n))
 
 def get_dashi_connection(amqpurl, name, total):
-    print datetime.now()
     exchange = "default_dashi_exchange"
-    print "dashi %s %s %s" % (name, amqpurl, exchange)
     dashi = DashiConnection(name, amqpurl, exchange, ssl=False)
     dashi.handle(client_finished, "done")
     dashi.handle(client_started, "start")
     global g_done_count
     while g_done_count < total:
         dashi.consume(count=1)
-    print datetime.now()
 
 def main():
     filename = "meta"
@@ -39,8 +36,6 @@ def main():
     amqpurl = fptr.readline().strip()
     exchange_name = fptr.readline().strip()
 
-    print exchange_name
-    print amqpurl
     exchange = Exchange(exchange_name, type="direct")
     D_queue = Queue(exchange_name, exchange, routing_key=exchange_name, auto_delete=False, exclusive=False)
     connection = BrokerConnection(amqpurl)
@@ -60,6 +55,9 @@ def main():
     s3id = os.environ['EC2_ACCESS_KEY']
     s3pw = os.environ['EC2_SECRET_KEY']
 
+    n = datetime.now()
+    print "XXX PRODUCER_STARTING %s" % (str(n))
+
     dashi_name = str(uuid.uuid4()).split('-')[0]
     for i in range(0, total_workers):
         msg = {'program': 'python node.py %d %d %d' % (i, total_workers, imgsize),
@@ -69,13 +67,16 @@ def main():
                 's3pw': s3pw,
                 'testname': name,
                 'dashiname': dashi_name}
-        print "sending message %s" % (str(msg))
         producer.publish(msg,
                      exchange=exchange,
                      routing_key=exchange_name,
                      serializer="json")
 
     get_dashi_connection(amqpurl, dashi_name, total_workers)
+
+    n = datetime.now()
+    print "XXX PRODUCER_DONE %s" % (str(n))
+
 
 if __name__ == "__main__":
     rc = main()
