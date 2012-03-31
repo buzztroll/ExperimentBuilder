@@ -12,7 +12,7 @@ do
     echo $i
     log="pylog$i"
     touch $log
-    python util.py > $log 2>&1 &
+    python util.py >> $log 2>&1 &
  done
  wait
  echo "ended"
