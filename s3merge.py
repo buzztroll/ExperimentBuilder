@@ -7,7 +7,7 @@ import bz2
 
 def get_s3_conn():
     try:
-        s3url = os.environ['EC2_URL']
+        s3url = os.environ['S3_URL']
     except:
         s3url = None
     s3id = os.environ['EC2_ACCESS_KEY']
