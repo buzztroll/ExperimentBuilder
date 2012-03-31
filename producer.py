@@ -1,6 +1,6 @@
 from datetime import datetime
 import logging
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 import os
 import sys
 from kombu import BrokerConnection, Exchange, Queue, Producer

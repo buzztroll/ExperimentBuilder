@@ -1,6 +1,6 @@
 import boto
 import logging
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 from kombu import BrokerConnection, Exchange, Queue, Consumer
 import os
 import socket
