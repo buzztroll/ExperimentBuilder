@@ -1,6 +1,6 @@
 from datetime import datetime
 import logging
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.DEBUG)
 import os
 import sys
 from kombu import BrokerConnection, Exchange, Queue, Producer
@@ -29,6 +29,7 @@ def get_dashi_connection(amqpurl, name, total):
 def dashi_wait(dashi, total):
     global g_done_count
     while g_done_count < total:
+        print "X"
         dashi.consume(count=1)
 
 def main():

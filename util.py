@@ -1,16 +1,16 @@
 import boto
 import logging
-logging.basicConfig(level=logging.INFO)
-from kombu import BrokerConnection, Exchange, Queue, Consumer
+from boto.s3.connection import OrdinaryCallingFormat
+from boto.s3.connection import S3Connection
 import os
 import socket
 from subprocess import Popen, PIPE
 import tempfile
 import sys
-from boto.s3.connection import OrdinaryCallingFormat
-from boto.s3.connection import S3Connection
 import urlparse
 import bz2
+logging.basicConfig(level=logging.DEBUG)
+from kombu import BrokerConnection, Exchange, Queue, Consumer
 from dashi import DashiConnection
 
 def get_ip():
