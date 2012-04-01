@@ -1,6 +1,8 @@
 import boto
 import logging
-logging.basicConfig(level=logging.DEBUG)
+import datetime
+
+logging.basicConfig(level=logging.INFO)
 from kombu import BrokerConnection, Exchange, Queue, Consumer
 import os
 import socket
@@ -19,7 +21,6 @@ def get_ip():
     ip = s.getsockname()[0]
     s.close()
     return ip
-
 
 def get_dashi_connection(amqpurl):
     exchange = "default_dashi_exchange"
@@ -107,7 +108,8 @@ class ClientWorker(object):
     def test_for_checkpoint_time(self, line):
         self.checkpoint_ctr = self.checkpoint_ctr + 1
         if self.checkpoint_ctr > self.checkpoint_threshold:
-            self.dashi.fire(self.dashiname, "start", rank=self.rank, hostname=self.host_id, message="CLIENT_CHECKPOINT_%s" % (line))
+            n = str(datetime.utcnow())
+            self.dashi.fire(self.dashiname, "start", rank=self.rank, hostname=self.host_id, message="CLIENT_CHECKPOINT_%s" % (line), time=n)
             self.upload_stage_file(line)
             self.get_stage_file()
 
@@ -176,7 +178,8 @@ class ClientWorker(object):
 
         self.dashiname = m.get_parameter('dashiname')
         self.dashi = get_dashi_connection(self.amqpurl)
-        self.dashi.fire(self.dashiname, "start", rank=self.rank, hostname=self.host_id, message="CLIENT_START")
+        n = str(datetime.utcnow())
+        self.dashi.fire(self.dashiname, "start", rank=self.rank, hostname=self.host_id, message="CLIENT_START", time=n)
 
         print "my rank is %d" % (self.rank)
 
@@ -202,7 +205,8 @@ class ClientWorker(object):
         m.done_with_it()
 
         print "sending dashi done message to %s" % (self.dashiname)
-        self.dashi.fire(self.dashiname, "done", rank=self.rank, hostname=self.host_id)
+        n = str(datetime.utcnow())
+        self.dashi.fire(self.dashiname, "done", rank=self.rank, hostname=self.host_id, time=n)
 
 
 def main(argv=sys.argv):

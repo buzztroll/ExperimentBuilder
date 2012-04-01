@@ -11,15 +11,15 @@ logging.basicConfig()
 logger = logging.getLogger("dashi")
 logger.setLevel(logging.INFO)
 
-def client_finished(rank=None, hostname=None):
+def client_finished(rank=None, hostname=None, time=None):
     global g_done_count
     n = datetime.now()
-    print "XXX CLIENT_DONE %d %s %s" % (rank, hostname, n)
+    print "XXX CLIENT_DONE %d %s %s %s" % (rank, hostname, n, time)
     g_done_count = g_done_count + 1
 
-def client_started(rank=None, hostname=None, message=None):
+def client_started(rank=None, hostname=None, message=None, time=None):
     n = datetime.now()
-    print "XXX %s %d %s %s | %s" % (message, rank, hostname, str(n))
+    print "XXX %s %d %s %s" % (message, rank, hostname, time)
 
 
 def get_dashi_connection(amqpurl, name, total):
