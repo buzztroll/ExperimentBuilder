@@ -51,8 +51,8 @@ def main():
     name = sys.argv[3]
 
     s3url = ""
-    if 'EC2_URL' in os.environ:
-        s3url = os.environ['EC2_URL']
+    if 'S3_URL' in os.environ:
+        s3url = os.environ['S3_URL']
     s3id = os.environ['EC2_ACCESS_KEY']
     s3pw = os.environ['EC2_SECRET_KEY']
 
@@ -68,6 +68,7 @@ def main():
                 's3pw': s3pw,
                 'testname': name,
                 'dashiname': dashi_name}
+        print str(msg)
         producer.publish(msg,
                      exchange=exchange,
                      routing_key=exchange_name,
