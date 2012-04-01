@@ -52,7 +52,7 @@ def main():
     dashi_con.handle(client_finished, "done")
     dashi_con.handle(client_started, "start")
 
-    total_workers = int(sys.argv[1])h
+    total_workers = int(sys.argv[1])
     imgsize = int(sys.argv[2])
     name = sys.argv[3]
 
