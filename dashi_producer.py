@@ -22,7 +22,7 @@ def client_started(rank=None, hostname=None, message=None):
     print "XXX %s %d %s %s" % (message, rank, hostname, str(n))
 
 def get_dashi_connection(amqpurl, name, exchange):
-    dashi = DashiConnection(name, amqpurl, exchange, ssl=False)
+    dashi = DashiConnection(name, amqpurl, exchange, ssl=False, serializer='json')
     return dashi
 
 def fake_cb(workload=None):
@@ -48,6 +48,7 @@ def main():
     fake_dashi_con.handle(fake_cb, "work_queue")
 
     dashi_con = get_dashi_connection(amqpurl, dashi_name, 'default_exchange')
+    #dashi_con = fake_dashi_con
     dashi_con.handle(client_finished, "done")
     dashi_con.handle(client_started, "start")
 

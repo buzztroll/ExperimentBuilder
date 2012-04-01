@@ -51,7 +51,7 @@ class ClientWorker(object):
     def get_dashi_connection(self, amqpurl):
         exchange = "default_exchange"
         print "using dashi info: %s, %s, %s" % (self.worker_queue_name, amqpurl, exchange)
-        dashi = DashiConnection(self.worker_queue_name, amqpurl, exchange, ssl=False)
+        dashi = DashiConnection(self.worker_queue_name, amqpurl, exchange, ssl=False, serializer='json')
         return dashi
 
     def _get_from_gitfile(self):
