@@ -44,15 +44,15 @@ def main():
     dashi_name = str(uuid.uuid4()).split('-')[0]
     print dashi_name
 
-    fake_dashi_con = get_dashi_connection(amqpurl, worker_queue_name, 'default_exchange')
+    fake_dashi_con = get_dashi_connection(amqpurl, worker_queue_name, 'buzz_default_exchange')
     fake_dashi_con.handle(fake_cb, "work_queue")
 
-    dashi_con = get_dashi_connection(amqpurl, dashi_name, 'default_exchange')
+    dashi_con = get_dashi_connection(amqpurl, dashi_name, 'buzz_default_exchange')
     #dashi_con = fake_dashi_con
     dashi_con.handle(client_finished, "done")
     dashi_con.handle(client_started, "start")
 
-    total_workers = int(sys.argv[1])
+    total_workers = int(sys.argv[1])h
     imgsize = int(sys.argv[2])
     name = sys.argv[3]
 
