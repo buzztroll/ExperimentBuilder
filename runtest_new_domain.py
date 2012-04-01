@@ -65,7 +65,7 @@ datafile = sys.argv[1]
 rnd= sys.argv[2].lower()
 outf = open(datafile, "w")
 
-worker_count = 32
+worker_count = 128
 picture_size = 1024*16
 
 asg_name = "test%d%d" % (picture_size, worker_count)
