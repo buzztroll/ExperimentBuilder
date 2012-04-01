@@ -1,6 +1,6 @@
 import boto
 import logging
-import datetime
+from datetime import datetime
 
 logging.basicConfig(level=logging.INFO)
 from kombu import BrokerConnection, Exchange, Queue, Consumer
