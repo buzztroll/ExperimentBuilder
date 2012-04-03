@@ -19,8 +19,7 @@ def client_finished(rank=None, hostname=None, time=None):
 
 def client_started(rank=None, hostname=None, message=None, time=None):
     n = datetime.now()
-    print "XXX %s %d %s || %s" % (message.strip(), rank, hostname, time)
-
+    print "XXX %s %d %s %s || %s" % (message.strip(), rank, hostname, n, time)
 
 def get_dashi_connection(amqpurl, name, total):
     exchange = "default_dashi_exchange"
