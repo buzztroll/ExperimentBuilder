@@ -35,8 +35,6 @@ def kill_a_vm(boto_con):
     inst = random.choice(instlist)
     inst.terminate()
 
-
-    
     n = datetime.now()
     print "XXX killing %s %s" % (str(inst), str(n))
     return True
@@ -44,7 +42,7 @@ def kill_a_vm(boto_con):
 
 def main(argv=sys.argv):
     interval = int(argv[1])
-    to_kill_count = int(argv[1])
+    to_kill_count = int(argv[2])
 
     boto_con = get_boto_con()
 
@@ -53,7 +51,6 @@ def main(argv=sys.argv):
     for i in range(0, to_kill_count):
         time.sleep(interval)
         kill_a_vm(boto_con)
-
 
     return 0
 
