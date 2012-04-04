@@ -34,6 +34,9 @@ def kill_a_vm(boto_con):
         return False
     inst = random.choice(instlist)
     inst.terminate()
+
+
+    
     n = datetime.now()
     print "XXX killing %s %s" % (str(inst), str(n))
     return True
