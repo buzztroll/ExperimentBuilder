@@ -53,22 +53,27 @@ def terminate_asg(con, name, s3id, s3pw):
     for res in all_inst:
         for i in res.instances:
             print "terminating %s" % (str(i))
-            i.terminate()
+            try:
+                i.terminate()
+            except Exception, ex:
+                print ex
 
 
 s3id = os.environ['EC2_ACCESS_KEY']
 s3pw = os.environ['EC2_SECRET_KEY']
 
 con = get_phantom_con(s3id, s3pw)
+print "have phantom con"
 
 datafile = sys.argv[1]
 rnd= sys.argv[2].lower()
 outf = open(datafile, "w")
 
-worker_count = 128
-picture_size = 1024*32
+worker_count = 200
+picture_size = 1024*64
 
 asg_name = "test%d%d" % (picture_size, worker_count)
+print "going to terminate %s if it exists" % (asg_name)
 try:
     terminate_asg(con, asg_name, s3id, s3pw)
 except:
@@ -77,7 +82,6 @@ extra = 0
 if (worker_count % 4) > 0:
     extra = 1
 node_count = worker_count / 4 + extra
-create_autoscale_group(con, asg_name, node_count)
 
 name = "exp%d_%d_%s" % (worker_count, picture_size, rnd)
 name = name.lower()
@@ -87,6 +91,8 @@ os.system(cmd)
 
 start_tm = datetime.now()
 
+print "creating asg %s" % (asg_name)
+create_autoscale_group(con, asg_name, node_count)
 print "NAME | %s |" % (name)
 cmd = "python producer.py %d %d %s" % (worker_count, picture_size, name)
 print cmd
