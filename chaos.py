@@ -27,7 +27,7 @@ def get_boto_con():
     return ec2conn
 
 def kill_a_vm(boto_con):
-    instlist = get_node_count(boto_cons)
+    instlist = get_node_count(boto_con)
     if not instlist:
         return False
     inst = random.choice(instlist)
