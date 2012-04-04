@@ -39,12 +39,13 @@ def kill_a_vm(boto_con):
 
 def main(argv=sys.argv):
     interval = int(argv[1])
+    to_kill_count = int(argv[1])
 
     boto_con = get_boto_con()
 
     random.seed()
 
-    for i in range(0, int(to_kill_count)):
+    for i in range(0, to_kill_count):
         time.sleep(interval)
         kill_a_vm(boto_con)
 

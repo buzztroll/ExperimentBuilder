@@ -62,6 +62,7 @@ def terminate_asg(con, name, s3id, s3pw):
 s3id = os.environ['EC2_ACCESS_KEY']
 s3pw = os.environ['EC2_SECRET_KEY']
 
+print "getting phantom con"
 con = get_phantom_con(s3id, s3pw)
 print "have phantom con"
 
@@ -110,4 +111,5 @@ outf.write("%s %d %d %d\n" % (name, worker_count, picture_size, tm.total_seconds
 outf.flush()
 print "DDD time %d" % (str(tm))
 
+os.system("killall chaos.py")
 terminate_asg(con, asg_name, s3id, s3pw)
