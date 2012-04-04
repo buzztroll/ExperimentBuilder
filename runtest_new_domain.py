@@ -97,7 +97,7 @@ create_autoscale_group(con, asg_name, node_count)
 if 'CHAOS_KILL_TIME' in os.environ:
     cmd = "%s/chaos.sh %d" % (os.getcwd(), int(os.environ['CHAOS_KILL_TIME']))
     print "start chaos %s" % (cmd)
-    os.systme(cmd)
+    os.system(cmd)
 
 print "NAME | %s |" % (name)
 cmd = "python producer.py %d %d %s" % (worker_count, picture_size, name)
