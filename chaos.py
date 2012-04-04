@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 from datetime import datetime
 from boto.ec2.connection import EC2Connection
 import os

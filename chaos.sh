@@ -1,3 +1,6 @@
 #!/bin/bash
 
-python chaos.py ${@} &
+p=`dirname $0`
+cd $p
+
+./chaos.py ${@} &
