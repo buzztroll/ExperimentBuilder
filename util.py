@@ -76,7 +76,9 @@ class ClientWorker(object):
             if rank_i == self.rank:
                 m = name[ndx:]
                 if m == "final":
-                    return None
+                    # return the last checkpoint.  if final is there but the message was not acked something could
+                    # be wrong
+                    return checkpoint
                 i = int(m)
                 if i > checkpoint:
                     checkpoint = i
