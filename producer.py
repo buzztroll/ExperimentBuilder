@@ -15,11 +15,13 @@ def client_finished(rank=None, hostname=None, time=None):
     global g_done_count
     n = datetime.now()
     print "XXX CLIENT_DONE %d %s %s || %s" % (rank, hostname, n, time)
+    sys.stdout.flush()
     g_done_count = g_done_count + 1
 
 def client_started(rank=None, hostname=None, message=None, time=None):
     n = datetime.now()
     print "XXX %s %d %s %s || %s" % (message.strip(), rank, hostname, n, time)
+    sys.stdout.flush()
 
 def get_dashi_connection(amqpurl, name, total):
     exchange = "default_dashi_exchange"
@@ -68,6 +70,7 @@ def main():
                 'testname': name,
                 'dashiname': dashi_name}
         print str(msg)
+        sys.stdout.flush()
         producer.publish(msg,
                      exchange=exchange,
                      routing_key=exchange_name,
