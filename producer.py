@@ -5,6 +5,9 @@ import sys
 from kombu import BrokerConnection, Exchange, Queue, Producer
 from dashi import DashiConnection
 import uuid
+from kombu.transport.librabbitmq import Connection
+import urlparse
+
 
 g_done_count = 0
 logging.basicConfig()
@@ -40,7 +43,14 @@ def main():
 
     exchange = Exchange(exchange_name, type="direct")
     D_queue = Queue(exchange_name, exchange, routing_key=exchange_name, auto_delete=False, exclusive=False)
-    connection = BrokerConnection(amqpurl)
+
+
+    #connection = BrokerConnection(amqpurl)
+
+    u = self.amqpurl.replace('amqp', 'http')
+    parts = urlparse.urlparse(u)
+    connection = Connection(host=parts.hostname, userid=parts.username, password=parts.password, port=parts.port, heartbeat=30)
+    
     channel = connection.channel()
 
     queue = D_queue(channel)
