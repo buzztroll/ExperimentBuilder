@@ -47,7 +47,7 @@ def main():
 
     #connection = BrokerConnection(amqpurl)
 
-    u = self.amqpurl.replace('amqp', 'http')
+    u = amqpurl.replace('amqp', 'http')
     parts = urlparse.urlparse(u)
     connection = Connection(host=parts.hostname, userid=parts.username, password=parts.password, port=parts.port, heartbeat=30)
     
