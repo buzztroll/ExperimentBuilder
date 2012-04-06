@@ -156,12 +156,12 @@ class ClientWorker(object):
         print "exchange = %s, queue = %s, routing_key = %s, amqpurl = %s" % (self.testname, self.testname, self.testname, self.amqpurl)
         exchange = Exchange(self.testname, type="direct")
         D_queue = Queue(self.testname, exchange, routing_key=self.testname, exclusive=False)
-        #connection = BrokerConnection(self.amqpurl)
+        connection = BrokerConnection(self.amqpurl)
 
-        u = self.amqpurl.replace('amqp', 'http')
-        parts = urlparse.urlparse(u)
+        #u = self.amqpurl.replace('amqp', 'http')
+        #parts = urlparse.urlparse(u)
 
-        connection = Connection(host=parts.hostname, userid=parts.username, password=parts.password, port=parts.port, heartbeat=30)
+        #connection = Connection(host=parts.hostname, userid=parts.username, password=parts.password, port=parts.port, heartbeat=30)
 
         channel = connection.channel()
         queue = D_queue(channel)

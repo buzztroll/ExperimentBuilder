@@ -45,11 +45,11 @@ def main():
     D_queue = Queue(exchange_name, exchange, routing_key=exchange_name, auto_delete=False, exclusive=False)
 
 
-    #connection = BrokerConnection(amqpurl)
+    connection = BrokerConnection(amqpurl)
 
-    u = amqpurl.replace('amqp', 'http')
-    parts = urlparse.urlparse(u)
-    connection = Connection(host=parts.hostname, userid=parts.username, password=parts.password, port=parts.port, heartbeat=30)
+    #u = amqpurl.replace('amqp', 'http')
+    #parts = urlparse.urlparse(u)
+    #connection = Connection(host=parts.hostname, userid=parts.username, password=parts.password, port=parts.port, heartbeat=30)
     
     channel = connection.channel()
 
