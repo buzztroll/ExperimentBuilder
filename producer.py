@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 import logging
 import os
+import socket
 import sys
 from kombu import BrokerConnection, Exchange, Queue, Producer
 from dashi import DashiConnection
@@ -117,7 +118,10 @@ def wait_till_done(dashi, total, p_con, name):
     global g_done_count
     global g_to_kill_count
     while g_done_count < total:
-        dashi.consume(count=1, timeout=1)
+        try:
+            dashi.consume(count=1, timeout=5)
+        except socket.timeout, ex:
+            pass
         if g_to_kill_count > 0 and kill_ready():
             rc = kill_one(p_con, name)
             if rc:

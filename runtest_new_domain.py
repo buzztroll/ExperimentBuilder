@@ -96,11 +96,6 @@ start_tm = datetime.now()
 print "creating asg %s" % (asg_name)
 create_autoscale_group(con, asg_name, node_count)
 
-if 'CHAOS_KILL_TIME' in os.environ:
-    cmd = "%s/chaos.sh %d 1" % (os.getcwd(), int(os.environ['CHAOS_KILL_TIME']))
-    print "start chaos %s" % (cmd)
-    os.system(cmd)
-
 print "NAME | %s |" % (name)
 cmd = "python producer.py %d %d %s" % (worker_count, picture_size, name)
 print cmd
@@ -112,5 +107,4 @@ outf.write("%s %d %d %d\n" % (name, worker_count, picture_size, tm.total_seconds
 outf.flush()
 print "DDD time %s" % (str(tm))
 
-os.system("killall chaos.py")
 terminate_asg(con, asg_name, s3id, s3pw)
