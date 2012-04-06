@@ -17,7 +17,7 @@ def _find_or_create_config(con, size, image, keyname, lc_name):
 
 def get_phantom_con(s3id, s3pw):
     print "get phatom con"
-    url = "http://svc.uc.futuregrid.org:8445"
+    url = os.environ['PHANTOM_URL']
     uparts = urlparse.urlparse(url)
     is_secure = uparts.scheme == 'https'
     region = RegionInfo(uparts.hostname)
@@ -70,8 +70,8 @@ datafile = sys.argv[1]
 rnd= sys.argv[2].lower()
 outf = open(datafile, "w")
 
-worker_count = 200
-picture_size = 1024*64
+worker_count = 100
+picture_size = 1024*32
 
 name = "exp%d_%d_%s" % (worker_count, picture_size, rnd)
 name = name.lower()
