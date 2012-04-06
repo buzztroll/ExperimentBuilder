@@ -11,6 +11,7 @@ import boto
 from boto.ec2.connection import EC2Connection
 from boto.regioninfo import RegionInfo
 import random
+import boto.ec2.autoscale
 
 g_time_interval = 60
 g_next_kill = None
