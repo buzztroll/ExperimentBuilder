@@ -73,7 +73,10 @@ outf = open(datafile, "w")
 worker_count = 200
 picture_size = 1024*64
 
-asg_name = "test%d%d" % (picture_size, worker_count)
+name = "exp%d_%d_%s" % (worker_count, picture_size, rnd)
+name = name.lower()
+
+asg_name = name
 print "going to terminate %s if it exists" % (asg_name)
 try:
     terminate_asg(con, asg_name, s3id, s3pw)
@@ -84,8 +87,6 @@ if (worker_count % 4) > 0:
     extra = 1
 node_count = worker_count / 4 + extra
 
-name = "exp%d_%d_%s" % (worker_count, picture_size, rnd)
-name = name.lower()
 
 cmd = "python listbucket.py %snimbus delete" % (name)
 os.system(cmd)

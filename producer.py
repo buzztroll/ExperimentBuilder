@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 import logging
 import os
 import sys
@@ -7,12 +7,79 @@ from dashi import DashiConnection
 import uuid
 from kombu.transport.librabbitmq import Connection
 import urlparse
+import boto
+from boto.ec2.connection import EC2Connection
+from boto.regioninfo import RegionInfo
+import random
 
-
+g_time_interval = 60
+g_next_kill = None
+g_to_kill_count = 0
+g_client_started = False
 g_done_count = 0
 logging.basicConfig()
 logger = logging.getLogger("dashi")
 logger.setLevel(logging.INFO)
+
+
+def kill_ready():
+    global g_next_kill
+    global g_time_interval
+    n = datetime.now()
+    if g_next_kill is None:
+        g_next_kill = n + timedelta(seconds=g_time_interval)
+    if n > g_next_kill:
+        g_next_kill = n + timedelta(seconds=g_time_interval)
+        return True
+    return False
+
+def get_phantom_con(s3id, s3pw):
+    url = os.environ['PHANTOM_URL']
+    print "get phatom con"
+    uparts = urlparse.urlparse(url)
+    is_secure = uparts.scheme == 'https'
+    region = RegionInfo(uparts.hostname)
+    con = boto.ec2.autoscale.AutoScaleConnection(aws_access_key_id=s3id, aws_secret_access_key=s3pw, is_secure=is_secure, port=uparts.port, region=region)
+    con.host = uparts.hostname
+    return con
+
+def get_boto_con():
+    id = os.environ['EC2_ACCESS_KEY']
+    pw = os.environ['EC2_SECRET_KEY']
+    cloud_url = os.environ['EC2_URL']
+    uparts = urlparse.urlparse(cloud_url)
+    is_secure = uparts.scheme == 'https'
+    ec2conn = EC2Connection(id, pw, host=uparts.hostname, port=uparts.port, is_secure=is_secure)
+    ec2conn.host = uparts.hostname
+    return ec2conn
+
+def get_instances(ec2conn, id_list):
+    instance_list = []
+    all_inst = ec2conn.get_all_instances()
+    for res in all_inst:
+        for i in res.instances:
+            if i.state == 'running':
+                instance_list.append(i)
+    return instance_list
+
+
+def kill_one(p_con, name):
+    asg_a = p_con.get_all_groups(names=[name,])
+    if not asg_a:
+        print "no group"
+        return False
+    instances = asg_a[0].instances
+    inst_ids = [i.instance_id for i in instances]
+    boto_con = get_boto_con()
+    insts = get_instances(boto_con, inst_ids)
+
+    inst = random.choice(insts)
+    inst.terminate()
+
+    n = datetime.now()
+    print "XXX killing %s %s" % (str(inst), str(n))
+    return True
+
 
 def client_finished(rank=None, hostname=None, time=None):
     global g_done_count
@@ -26,14 +93,34 @@ def client_started(rank=None, hostname=None, message=None, time=None):
     print "XXX %s %d %s %s || %s" % (message.strip(), rank, hostname, n, time)
     sys.stdout.flush()
 
-def get_dashi_connection(amqpurl, name, total):
+    global g_client_started
+    if not g_client_started:
+        g_client_started = True
+        count_str = 'CHAOS_KILL_COUNT'
+        if count_str in os.environ:
+            count = int(os.environ[count_str])
+            global g_to_kill_count
+            g_to_kill_count = count
+
+            g_next_kill
+            
+
+def get_dashi_connection(amqpurl, name):
     exchange = "default_dashi_exchange"
     dashi = DashiConnection(name, amqpurl, exchange, ssl=False)
     dashi.handle(client_finished, "done")
     dashi.handle(client_started, "start")
+    return dashi
+
+def wait_till_done(dashi, total, p_con, name):
     global g_done_count
+    global g_to_kill_count
     while g_done_count < total:
-        dashi.consume(count=1)
+        dashi.consume(count=1, timeout=1)
+        if g_to_kill_count > 0 and kill_ready():
+            rc = kill_one(p_con, name)
+            if rc:
+                g_to_kill_count = g_to_kill_count - 1
 
 def main():
     filename = "meta"
@@ -47,10 +134,6 @@ def main():
 
     connection = BrokerConnection(amqpurl)
 
-    #u = amqpurl.replace('amqp', 'http')
-    #parts = urlparse.urlparse(u)
-    #connection = Connection(host=parts.hostname, userid=parts.username, password=parts.password, port=parts.port, heartbeat=30)
-    
     channel = connection.channel()
 
     queue = D_queue(channel)
@@ -86,7 +169,9 @@ def main():
                      routing_key=exchange_name,
                      serializer="json")
 
-    get_dashi_connection(amqpurl, dashi_name, total_workers)
+    dashi = get_dashi_connection(amqpurl, dashi_name)
+    p_con = get_phantom_con(s3id, s3pw)
+    wait_till_done(dashi, total_workers, p_con, name)
 
     n = datetime.now()
     print "XXX done %s" % (str(n))
