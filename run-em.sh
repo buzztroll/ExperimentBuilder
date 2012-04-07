@@ -13,7 +13,7 @@ do
 
     run_logfile="/tmp/exprdata/run$i.log"
 
-    python runtest_new_domain.py data$i round$i > $run_logfile
+    python runtest_new_domain.py data$i round$i | tee $run_logfile
 
     echo "waiting a minute for no good reason..."
     sleep 60
