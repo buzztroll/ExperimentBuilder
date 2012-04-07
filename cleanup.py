@@ -8,7 +8,7 @@ import urllib
 import sys
 from boto.regioninfo import RegionInfo
 from boto.s3.connection import OrdinaryCallingFormat
-from boto.s3.connection import S3Connection
+import boto.ec2.autoscale
 import urlparse
 from kombu import BrokerConnection, Exchange, Queue, Consumer
 
