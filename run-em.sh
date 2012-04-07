@@ -1,6 +1,7 @@
 #!/bin/bash
 
-logdir="/usr/local/exprdata-`date +%s`"
+dtname=`date +%s`
+logdir="/usr/local/exprdata-$dtname"
 rm -rf $logdir
 mkdir $logdir
 logfile="$logdir/overall.log"
@@ -18,7 +19,7 @@ do
     sleep 60
     run_logfile="$logdir/run$i.log"
 
-    python runtest_new_domain.py data$i round$i | tee $run_logfile
+    python runtest_new_domain.py "run$dtname""$i" round$i | tee $run_logfile
 
     echo "waiting a minute for no good reason..."
     sleep 60
