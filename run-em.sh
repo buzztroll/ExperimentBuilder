@@ -8,8 +8,8 @@ unset CHAOS_KILL_COUNT
 
 for i in `seq 0 10`
 do
-    echo "XXXXXXXXXXXXXX starting $i XXXXXXXXXXXXXXXXXXXXX" >> $logfile
-    python cleanup.py >> $logfile
+    echo "XXXXXXXXXXXXXX starting $i XXXXXXXXXXXXXXXXXXXXX" tee -a $logfile
+    python cleanup.py tee -a $logfile
 
     run_logfile="/tmp/exprdata/run$i.log"
 
