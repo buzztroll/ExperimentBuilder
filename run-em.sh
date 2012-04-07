@@ -6,7 +6,7 @@ touch $logfile
 
 unset CHAOS_KILL_COUNT
 
-for i in `seq 0 10`
+for i in `seq 1 10`
 do
     echo "XXXXXXXXXXXXXX starting $i XXXXXXXXXXXXXXXXXXXXX" tee -a $logfile
     python cleanup.py tee -a $logfile
@@ -19,4 +19,5 @@ do
     echo "waiting a minute for no good reason..."
     sleep 60
 
+    export CHAOS_KILL_COUNT=$i
 done
