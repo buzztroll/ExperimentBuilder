@@ -1,10 +1,8 @@
+import socket
 import boto
 from boto.ec2.connection import EC2Connection
 from kombu import BrokerConnection
 import os
-from subprocess import Popen, PIPE
-import tempfile
-import urllib
 import sys
 from boto.regioninfo import RegionInfo
 from boto.s3.connection import OrdinaryCallingFormat
@@ -18,6 +16,7 @@ done = False
 def work(body, message):
     global done
     done = True
+    print "message"
     message.ack()
 
 def kill_asgs():
@@ -80,12 +79,11 @@ def queue_drain():
     consumer.qos(prefetch_size=0, prefetch_count=1, apply_global=False)
     consumer.consume(no_ack=False)
     print "about to drain"
-    for i in range(0, 100):
+    for i in range(0, 30):
         try:
             connection.drain_events(timeout=1)
-        except:
+        except socket.timeout, ex:
             pass
-
 
 try:
     print "killing the asgs"
@@ -100,6 +98,8 @@ except Exception, ex:
     print ex
 
 os.system("echo 60 > /proc/sys/net/ipv4/tcp_keepalive_time")
+os.system("/etc/init.d/rabbitmq-server restart")
+
 print "waiting out the keepalive"
 time.sleep(60)
 try:
@@ -111,5 +111,4 @@ except Exception, ex:
 os.system("rabbitmqctl list_queues")
 os.system("pkill epu-provisioner")
 os.system("pkill epu-managem")
-os.system("echo 60 > /proc/sys/net/ipv4/tcp_keepalive_time")
 
