@@ -11,6 +11,7 @@ from boto.s3.connection import OrdinaryCallingFormat
 import boto.ec2.autoscale
 import urlparse
 from kombu import BrokerConnection, Exchange, Queue, Consumer
+import time
 
 done = False
 
@@ -79,9 +80,9 @@ def queue_drain():
     consumer.qos(prefetch_size=0, prefetch_count=1, apply_global=False)
     consumer.consume(no_ack=False)
     print "about to drain"
-    for i in range(0, 25):
+    for i in range(0, 100):
         try:
-            connection.drain_events(timeout=5)
+            connection.drain_events(timeout=1)
         except:
             pass
 
@@ -98,6 +99,8 @@ try:
 except Exception, ex:
     print ex
 
+os.system("echo 60 > /proc/sys/net/ipv4/tcp_keepalive_time")
+time.sleep("waiting out the keepalive")
 try:
     print "draining the queue"
     queue_drain()
@@ -107,4 +110,5 @@ except Exception, ex:
 os.system("rabbitmqctl list_queues")
 os.system("pkill epu-provisioner")
 os.system("pkill epu-managem")
+os.system("echo 60 > /proc/sys/net/ipv4/tcp_keepalive_time")
 
