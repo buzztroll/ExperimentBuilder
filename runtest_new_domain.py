@@ -58,6 +58,11 @@ def terminate_asg(con, name, s3id, s3pw):
             except Exception, ex:
                 print ex
 
+def check_state_asg(con, name):
+    print "checking on the state of the EPU"
+    asg_a = con.get_all_groups(names=[name,])
+    for i in asg_a[0].instances:
+        print i.lifecycle_state
 
 s3id = os.environ['EC2_ACCESS_KEY']
 s3pw = os.environ['EC2_SECRET_KEY']
@@ -70,7 +75,7 @@ datafile = sys.argv[1]
 rnd= sys.argv[2].lower()
 outf = open(datafile, "w")
 
-worker_count = 100
+worker_count = 128
 picture_size = 1024*32
 
 name = "exp%d_%d_%s" % (worker_count, picture_size, rnd)
@@ -106,5 +111,7 @@ tm = end_tm - start_tm
 outf.write("%s %d %d %d\n" % (name, worker_count, picture_size, tm.total_seconds()))
 outf.flush()
 print "DDD time %s" % (str(tm))
+
+check_state_asg(con, asg_name)
 
 terminate_asg(con, asg_name, s3id, s3pw)
