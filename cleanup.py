@@ -100,7 +100,8 @@ except Exception, ex:
     print ex
 
 os.system("echo 60 > /proc/sys/net/ipv4/tcp_keepalive_time")
-time.sleep("waiting out the keepalive")
+print "waiting out the keepalive"
+time.sleep(60)
 try:
     print "draining the queue"
     queue_drain()
