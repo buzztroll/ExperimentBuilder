@@ -11,6 +11,7 @@ do
     echo "XXXXXXXXXXXXXX starting $i XXXXXXXXXXXXXXXXXXXXX" tee -a $logfile
     python cleanup.py tee -a $logfile
 
+    sleep 60
     run_logfile="/tmp/exprdata/run$i.log"
 
     python runtest_new_domain.py data$i round$i | tee $run_logfile

@@ -32,12 +32,15 @@ def kill_asgs():
     con = boto.ec2.autoscale.AutoScaleConnection(aws_access_key_id=s3id, aws_secret_access_key=s3pw, is_secure=is_secure, port=uparts.port, region=region)
     con.host = uparts.hostname
 
+    print "get all groups"
     asg_a = con.get_all_groups()
 
     for asg in asg_a:
+        print "killing %s" % (asg)
         asg.delete()
 
 def kill_instances():
+    print "killing any VM instances"
     s3url = os.environ['EC2_URL']
     s3id = os.environ['EC2_ACCESS_KEY']
     s3pw = os.environ['EC2_SECRET_KEY']
@@ -98,7 +101,6 @@ except Exception, ex:
     print ex
 
 os.system("echo 60 > /proc/sys/net/ipv4/tcp_keepalive_time")
-os.system("/etc/init.d/rabbitmq-server restart")
 
 print "waiting out the keepalive"
 time.sleep(60)
