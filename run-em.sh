@@ -19,6 +19,7 @@ do
     sleep 60
     run_logfile="$logdir/run$i.log"
 
+    echo "running the test $i"
     python runtest_new_domain.py "run$dtname""$i" round$i | tee $run_logfile
 
     echo "waiting a minute for no good reason..."
