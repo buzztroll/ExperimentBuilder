@@ -11,7 +11,10 @@ echo $logdir
 
 unset CHAOS_KILL_COUNT
 
-for i in `seq 1 10`
+cp rabbitmq.config /etc/rabbitmq/
+/etc/init.d/rabbitmq-server restart
+
+for i in `seq 1 11`
 do
     echo "XXXXXXXXXXXXXX starting $i XXXXXXXXXXXXXXXXXXXXX" tee -a $logfile
     python cleanup.py tee -a $logfile
