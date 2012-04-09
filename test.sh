@@ -1,6 +1,7 @@
 #!/bin/bash
 
 proc_count=`cat /proc/cpuinfo | grep processor | wc -l`
+proc_count=1
 
 while [ 1 ];
 do

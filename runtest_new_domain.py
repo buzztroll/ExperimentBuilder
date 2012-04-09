@@ -75,8 +75,8 @@ datafile = sys.argv[1]
 rnd= sys.argv[2].lower()
 outf = open(datafile, "w")
 
-worker_count = 200
-picture_size = 1024*64
+worker_count = 64
+picture_size = 1024*32
 
 name = "exp%d_%d_%s" % (worker_count, picture_size, rnd)
 name = name.lower()
@@ -91,6 +91,7 @@ extra = 0
 if (worker_count % 4) > 0:
     extra = 1
 node_count = worker_count / 4 + extra
+node_count = worker_count
 
 
 cmd = "python listbucket.py %snimbus delete" % (name)
