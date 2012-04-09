@@ -79,7 +79,7 @@ def kill_one(p_con, name):
     inst.terminate()
 
     n = datetime.now()
-    print "XXX killing %s %s" % (str(inst), str(n))
+    print "XXX killing %s %s %s %s" % (str(inst), str(inst.ip_address), inst.public_dns_name, str(n))
     return True
 
 
