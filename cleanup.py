@@ -111,6 +111,7 @@ except Exception, ex:
     print ex
 
 os.system("rabbitmqctl list_queues")
+os.system("pkill phantomcherrypy")
 os.system("pkill epu-provisioner")
 os.system("pkill epu-managem")
 
