@@ -40,13 +40,16 @@ def create_autoscale_group(con, name, node_count):
     asg.set_capacity(node_count)
 
 def terminate_asg(con, name, s3id, s3pw):
+    url = os.environ['EC2_URL']
+    uparts = urlparse.urlparse(url)
+    is_secure = uparts.scheme == 'https'
+
     asg_a = con.get_all_groups(names=[name,])
     inst = asg_a[0].instances
     inst_list = [i.instance_id for i in inst]
     asg_a[0].delete()
     # get instances and kill them
-    host = 's83r.idp.sdsc.futuregrid.org'
-    #host = 'svc.uc.futuregrid.org'
+    host = uparts.hostname
     ec2conn = EC2Connection(s3id, s3pw, host=host, port=8444, debug=0)
     ec2conn.host = host
     all_inst = ec2conn.get_all_instances(instance_ids=inst_list)
@@ -85,8 +88,9 @@ asg_name = name
 print "going to terminate %s if it exists" % (asg_name)
 try:
     terminate_asg(con, asg_name, s3id, s3pw)
-except:
-    pass
+except Exception, ex:
+    print "a service with the same name existed"
+    print ex
 extra = 0
 if (worker_count % 4) > 0:
     extra = 1
