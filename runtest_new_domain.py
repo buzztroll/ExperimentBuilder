@@ -35,7 +35,7 @@ def create_autoscale_group(con, name, node_count):
     asg_name = name
     print "create %s" % (asg_name)
 
-    asg = boto.ec2.autoscale.group.AutoScalingGroup(launch_config=lc, connection=con, group_name=asg_name, availability_zones=["sierra",], min_size=node_count, max_size=node_count)
+    asg = boto.ec2.autoscale.group.AutoScalingGroup(launch_config=lc, connection=con, group_name=asg_name, availability_zones=[os.environ['FG_CLOUD_NAME'],], min_size=node_count, max_size=node_count)
     con.create_auto_scaling_group(asg)
     asg.set_capacity(node_count)
 
@@ -78,7 +78,7 @@ datafile = sys.argv[1]
 rnd= sys.argv[2].lower()
 outf = open(datafile, "w")
 
-worker_count = 64
+worker_count = 128
 picture_size = 1024*32
 
 name = "exp%d_%d_%s" % (worker_count, picture_size, rnd)

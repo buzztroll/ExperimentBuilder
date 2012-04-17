@@ -14,7 +14,7 @@ from boto.regioninfo import RegionInfo
 import random
 import boto.ec2.autoscale
 
-g_time_interval = 60
+g_time_interval = 300
 g_next_kill = None
 g_to_kill_count = 0
 g_client_started = False
