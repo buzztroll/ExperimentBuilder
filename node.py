@@ -38,7 +38,7 @@ def main(argv=sys.argv):
     h = int(argv[3])
     last_checkpoint = int(argv[4])
     w = h
-
+    
     if last_checkpoint != 0:
         my_rank = last_checkpoint
         

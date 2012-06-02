@@ -9,7 +9,7 @@ import pylab as P
 from matplotlib.ticker import EngFormatter
 import numpy as np
 
-def make_graph(line_x, line_y, kill_lines, picture_resolution, worker_count):
+def make_graph(line_x, line_y, kill_lines, picture_resolution, worker_count, rnd, directory):
     ax = plt.subplot(111)
 
     plt.title("%d workers making a %dx%d image" % (worker_count, picture_resolution, picture_resolution))
@@ -23,7 +23,7 @@ def make_graph(line_x, line_y, kill_lines, picture_resolution, worker_count):
     plt.xlabel("Seconds")
     plt.ylabel("Worker counts")
     plt.legend()
-    savefig("/home/bresnaha/group%d-%d-killcount_%d.png" % (worker_count, picture_resolution, count), format='png' )
+    savefig("%s/group%d-%d-killcount_%d_%s.png" % (directory, worker_count, picture_resolution, count, rnd), format='png' )
 
 
 def parse_entry(line):
@@ -87,6 +87,7 @@ end_counts = 0
 
 picture_resolution = None
 worker_count = None
+rnd = None
 
 for line in fptr:
     time_dict = None
@@ -101,7 +102,7 @@ for line in fptr:
         name_a = name.split("_")
         picture_resolution = int(name_a[1])
         worker_count = int(name_a[0].replace("exp", ""))
-
+        rnd = name_a[2].split()[0]
         continue
     if line_array[0] != "XXX":
         continue
@@ -196,4 +197,4 @@ for e in restart_time_dict:
     print restart_time_dict[e]
 
 
-make_graph(line_x, line_y, kill_lines, picture_resolution, worker_count)
+make_graph(line_x, line_y, kill_lines, picture_resolution, worker_count, rnd, sys.argv[2])
