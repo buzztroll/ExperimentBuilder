@@ -182,6 +182,6 @@ def main():
     print "XXX done %s" % (str(n))
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  
     rc = main()
     sys.exit(rc)
