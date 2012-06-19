@@ -137,7 +137,7 @@ def main():
 
 
     connection = BrokerConnection(amqpurl)
-
+    print amqpurl
     channel = connection.channel()
 
     queue = D_queue(channel)
