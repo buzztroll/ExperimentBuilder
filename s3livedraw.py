@@ -29,7 +29,8 @@ class Get1File(threading.Thread):
             print "unzip %s" % (filename)
             os.system("bunzip2 %s" % (filename))
             print "draw %s" % (filename)
-            self.draw_file(root_filename)
+            #self.draw_file(root_filename)
+            self.screen_obj.draw_file(root_filename)
             print "removing %s" % (filename)
             os.remove(root_filename)
         except Exception, ex:
@@ -99,10 +100,36 @@ class GetEvents(threading.Thread):
         finally:
             self.lock.release()
 
+    def draw_file(self, data_file):
+        self.lock.acquire()
+        try:
+            self._draw_file(data_file)
+        finally:
+            self.lock.release()
+
+    def _draw_file(self, data_file):
+        line_num = 0
+        fptr = open(data_file, "r")
+        for line in fptr:
+            try:
+                la = line.split()
+                s_kx = int(int(la[0]) * self.scale_ratio)
+                s_ky = int(int(la[1]) * self.scale_ratio)
+                s_red = int(la[2])
+                s_green = int(la[3])
+                s_blue = int(la[4])
+                self.screen.set_at((s_kx, s_ky), (s_red, s_green, s_blue, 255))
+            except Exception, ex:
+                print ex
+                print line
+                print line_num
+            line_num = line_num + 1
+
+
     def run(self):
         while not self.done:
             self.get_files()
-            pygame.time.delay(int(100))
+            pygame.time.delay(int(10))
 
 
 def cb_get_conn(): 

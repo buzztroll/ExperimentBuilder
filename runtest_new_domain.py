@@ -84,6 +84,8 @@ picture_size = 1024*1
 name = "newexp%d_%d_%s" % (worker_count, picture_size, rnd)
 name = name.lower()
 
+print "BUCKET IS %s" % (name)
+
 asg_name = name
 print "going to terminate %s if it exists" % (asg_name)
 try:
