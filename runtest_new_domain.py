@@ -79,7 +79,7 @@ rnd= sys.argv[2].lower()
 outf = open(datafile, "w")
 
 worker_count = 1
-picture_size = 1024*2
+picture_size = 1024*1
 
 name = "newexp%d_%d_%s" % (worker_count, picture_size, rnd)
 name = name.lower()
