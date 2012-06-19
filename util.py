@@ -48,7 +48,7 @@ class EPMessage(object):
 class ClientWorker(object):
 
     def __init__(self, core):
-        self.checkpoint_threshold = 500000
+        self.checkpoint_threshold = 1000000
         self.checkpoint_token = "CHECKPOINT:"
         self.s3conn = None
         self.rank = None

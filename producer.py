@@ -6,7 +6,6 @@ import sys
 from kombu import BrokerConnection, Exchange, Queue, Producer
 from dashi import DashiConnection
 import uuid
-from kombu.transport.librabbitmq import Connection
 import urlparse
 import boto
 from boto.ec2.connection import EC2Connection

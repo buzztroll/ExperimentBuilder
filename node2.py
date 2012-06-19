@@ -16,7 +16,8 @@ def build_mine(file, rank, k, numThr, w, h, maxIt):
     # each thread only calculates its own share of pixels
     for i in range(start, end):
         if (i % 10) == 0:
-            file.write("CHECKPOINT:%d\n" % (i))
+            #file.write("CHECKPOINT:%d\n" % (i))
+            pass
         kx = i % w
         ky = int(i / w)
         a = xa + xd * kx / (w - 1.0)

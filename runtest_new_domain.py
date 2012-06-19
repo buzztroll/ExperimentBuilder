@@ -29,7 +29,7 @@ def get_phantom_con(s3id, s3pw):
 
 def create_autoscale_group(con, name, node_count):
     image = "expr2.gz"
-    lc_name = "expr2"
+    lc_name = "expr2@%s" % (os.environ['FG_CLOUD_NAME'])
     lc = _find_or_create_config(con, "m1.xlarge", image, "nimbusphantom", lc_name)
 
     asg_name = name
@@ -50,16 +50,16 @@ def terminate_asg(con, name, s3id, s3pw):
     asg_a[0].delete()
     # get instances and kill them
     host = uparts.hostname
-    ec2conn = EC2Connection(s3id, s3pw, host=host, port=8444, debug=0)
-    ec2conn.host = host
-    all_inst = ec2conn.get_all_instances(instance_ids=inst_list)
-    for res in all_inst:
-        for i in res.instances:
-            print "terminating %s" % (str(i))
-            try:
-                i.terminate()
-            except Exception, ex:
-                print ex
+#    ec2conn = EC2Connection(s3id, s3pw, host=host, port=8444, debug=0)
+#    ec2conn.host = host
+#    all_inst = ec2conn.get_all_instances(instance_ids=inst_list)
+#    for res in all_inst:
+#        for i in res.instances:
+#            print "terminating %s" % (str(i))
+#            try:
+#                i.terminate()
+#            except Exception, ex:
+#                print ex
 
 def check_state_asg(con, name):
     print "checking on the state of the EPU"
@@ -78,10 +78,10 @@ datafile = sys.argv[1]
 rnd= sys.argv[2].lower()
 outf = open(datafile, "w")
 
-worker_count = 128
-picture_size = 1024*32
+worker_count = 16
+picture_size = 1024*8
 
-name = "exp%d_%d_%s" % (worker_count, picture_size, rnd)
+name = "newexp%d_%d_%s" % (worker_count, picture_size, rnd)
 name = name.lower()
 
 asg_name = name
