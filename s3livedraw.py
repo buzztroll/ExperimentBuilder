@@ -128,7 +128,11 @@ class GetEvents(threading.Thread):
 
     def run(self):
         while not self.done:
-            self.get_files()
+            try:
+                self.get_files()
+            except Exception, ex:
+                print ex
+                pygame.time.delay(5000)
             pygame.time.delay(int(10))
 
 
@@ -148,29 +152,6 @@ def setup_screen():
     pygame.display.set_caption("Phantom Demo")
     screen = pygame.display.get_surface()
     return screen
-
-#def draw_file(screen, data_file, scale_ratio):
-#
-#    line_num = 0
-#    fptr = open(data_file, "r")
-#    for line in fptr:
-#        try:
-#            la = line.split()
-#            s_kx = int(int(la[0]) * scale_ratio)
-#            s_ky = int(int(la[1]) * scale_ratio)
-#            s_red = int(la[2])
-#            s_green = int(la[3])
-#            s_blue = int(la[4])
-#            #print (s_kx, s_ky, s_red, s_green, s_blue)
-#            screen.set_at((s_kx, s_ky), (s_red, s_green, s_blue, 255))
-#        except Exception, ex:
-#            print ex
-#            print line
-#            print line_num
-#        line_num = line_num + 1
-#    pygame.display.flip()
-
-
 
 def main(argv=sys.argv):
     bucket_name = argv[1]
@@ -197,7 +178,7 @@ def main(argv=sys.argv):
         events = pygame.event.get()
         for event in events:
             if event.type == QUIT or event.type == KEYDOWN:
-                g.set_done(True)
+                g.set_done()
         pygame.display.flip()
         pygame.time.delay(int(500))
 

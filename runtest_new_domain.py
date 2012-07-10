@@ -30,7 +30,7 @@ def get_phantom_con(s3id, s3pw):
 def create_autoscale_group(con, name, node_count):
     image = "expr2.gz"
     lc_name = "expr2@%s" % (os.environ['FG_CLOUD_NAME'])
-    lc = _find_or_create_config(con, "m1.xlarge", image, "nimbusphantom", lc_name)
+    lc = _find_or_create_config(con, "m1.small", image, "nimbusphantom", lc_name)
 
     asg_name = name
     print "create %s" % (asg_name)
@@ -77,11 +77,13 @@ print "have phantom con"
 datafile = sys.argv[1]
 rnd= sys.argv[2].lower()
 outf = open(datafile, "w")
+picture_size = int(sys.argv[3])
+worker_count = int(sys.argv[4])
 
-worker_count = 1
-picture_size = 1024*1
+corepervm = 1
+message_count = worker_count * 1
 
-name = "newexp%d_%d_%s" % (worker_count, picture_size, rnd)
+name = "newexp%d_%d_%s_%d" % (worker_count, picture_size, rnd, message_count)
 name = name.lower()
 
 print "BUCKET IS %s" % (name)
@@ -94,11 +96,10 @@ except Exception, ex:
     print "a service with the same name existed"
     print ex
 extra = 0
-if (worker_count % 4) > 0:
+if (worker_count % corepervm) > 0:
     extra = 1
-node_count = worker_count / 4 + extra
+node_count = worker_count / corepervm + extra
 node_count = worker_count
-
 
 cmd = "python listbucket.py %snimbus delete" % (name)
 os.system(cmd)
@@ -109,13 +110,13 @@ print "creating asg %s" % (asg_name)
 create_autoscale_group(con, asg_name, node_count)
 
 print "NAME | %s |" % (name)
-cmd = "python producer.py %d %d %s" % (worker_count, picture_size, name)
+cmd = "python producer.py %d %d %s" % (message_count, picture_size, name)
 print cmd
 rc = os.system(cmd)
 end_tm = datetime.now()
 
 tm = end_tm - start_tm
-outf.write("%s %d %d %d\n" % (name, worker_count, picture_size, tm.total_seconds()))
+outf.write("%s %d %d %d %d\n" % (name, worker_count, picture_size, tm.total_seconds(), message_count))
 outf.flush()
 print "DDD time %s" % (str(tm))
 

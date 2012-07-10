@@ -144,7 +144,7 @@ def main():
     queue.declare()
     producer = Producer(channel, exchange, routing_key=exchange_name)
 
-    total_workers = int(sys.argv[1])
+    message_count = int(sys.argv[1])
     imgsize = int(sys.argv[2])
     name = sys.argv[3]
 
@@ -158,8 +158,8 @@ def main():
     print "XXX starting %s" % (str(n))
 
     dashi_name = str(uuid.uuid4()).split('-')[0]
-    for i in range(0, total_workers):
-        msg = {'program': 'python node.py %d %d %d' % (i, total_workers, imgsize),
+    for i in range(0, message_count):
+        msg = {'program': 'python node.py %d %d %d' % (i, message_count, imgsize),
                 'rank': i,
                 's3url': s3url,
                 's3id': s3id,
@@ -175,7 +175,7 @@ def main():
 
     dashi = get_dashi_connection(amqpurl, dashi_name)
     p_con = get_phantom_con(s3id, s3pw)
-    wait_till_done(dashi, total_workers, p_con, name)
+    wait_till_done(dashi, message_count, p_con, name)
 
     n = datetime.now()
     print "XXX done %s" % (str(n))
