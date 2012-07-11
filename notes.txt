@@ -1,0 +1,24 @@
+Start rabbit somewhere.
+   on hotel the image is exprmandelbrotq
+
+   use the launch plan to start it
+
+edit meta with the rabbitmq hostname and push it into git
+
+set some envs
+    FG_CLOUD_NAME=
+    PHANTOM_URL=https://svc.uc.futuregrid.org:8445
+    PHANTOM_EPU_RABBIT_HOST=
+    RABBITMQ_USERNAME=
+    RABBITMQ_PASSWORD=
+    EC2_ACCESS_KEY=
+    EC2_URL=
+
+
+run the test program:
+
+    runtest_new_domain.py <output file> <round number (anything)> <picture size> <worker count>
+
+Run the visualizer
+
+    s3livedraw.py <bucket name (output from bove)> <tempfile dir> <image size being produced>
