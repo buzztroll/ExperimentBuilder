@@ -157,6 +157,7 @@ def main():
     n = datetime.now()
     print "XXX starting %s" % (str(n))
 
+    msg_list = []
     dashi_name = str(uuid.uuid4()).split('-')[0]
     for i in range(0, message_count):
         msg = {'program': 'python node.py %d %d %d' % (i, message_count, imgsize),
@@ -166,6 +167,9 @@ def main():
                 's3pw': s3pw,
                 'testname': name,
                 'dashiname': dashi_name}
+        msg_list.append(msg)
+    random.shuffle(msg_list)
+    for msg in msg_list:
         print str(msg)
         sys.stdout.flush()
         producer.publish(msg,

@@ -177,7 +177,7 @@ def main(argv=sys.argv):
 
         events = pygame.event.get()
         for event in events:
-            if event.type == QUIT or event.type == KEYDOWN:
+            if event.type == QUIT:
                 g.set_done()
         pygame.display.flip()
         pygame.time.delay(int(500))
