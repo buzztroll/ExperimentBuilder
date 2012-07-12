@@ -32,7 +32,7 @@ class Get1File(threading.Thread):
             #self.draw_file(root_filename)
             self.screen_obj.draw_file(root_filename)
             print "removing %s" % (filename)
-            os.remove(root_filename)
+            #os.remove(root_filename)
         except Exception, ex:
             print ex
 
