@@ -20,7 +20,6 @@ def get_s3_conn():
         is_secure = parts.scheme == "https"
         path = parts.path
 
-    print "%s %s %s" % (s3id, s3pw, s3url)
     cf = OrdinaryCallingFormat()
     s3conn = S3Connection(s3id, s3pw, host=host, port=port, is_secure=is_secure, calling_format=cf)
     return s3conn
@@ -35,10 +34,7 @@ con = get_s3_conn()
 
 b = con.get_bucket(sys.argv[1])
 
-print b
 for k in b.list():
-    print k
-    print k.size
     if download:
         k.get_contents_to_filename(k.name)
     if delete:

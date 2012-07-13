@@ -16,7 +16,7 @@ def _find_or_create_config(con, size, image, keyname, lc_name):
     return lcs[0]
 
 def get_phantom_con(s3id, s3pw):
-    print "get phatom con"
+    print "get Phatom connection..."
     url = os.environ['PHANTOM_URL']
     uparts = urlparse.urlparse(url)
     is_secure = uparts.scheme == 'https'
@@ -33,7 +33,7 @@ def create_autoscale_group(con, name, node_count):
     lc = _find_or_create_config(con, "m1.small", image, "nimbusphantom", lc_name)
 
     asg_name = name
-    print "create %s" % (asg_name)
+    print "Create the domain %s" % (asg_name)
 
     asg = boto.ec2.autoscale.group.AutoScalingGroup(launch_config=lc, connection=con, group_name=asg_name, availability_zones=[os.environ['FG_CLOUD_NAME'],], min_size=node_count, max_size=node_count)
     con.create_auto_scaling_group(asg)
@@ -70,26 +70,21 @@ def check_state_asg(con, name):
 s3id = os.environ['EC2_ACCESS_KEY']
 s3pw = os.environ['EC2_SECRET_KEY']
 
-print "getting phantom con"
 con = get_phantom_con(s3id, s3pw)
-print "have phantom con"
 
 datafile = sys.argv[1]
-rnd= sys.argv[2].lower()
 outf = open(datafile, "w")
-picture_size = int(sys.argv[3])
-worker_count = int(sys.argv[4])
+picture_size = int(sys.argv[2])
+worker_count = int(sys.argv[3])
 
 corepervm = 1
 message_count = worker_count * 1
 
-name = "newexp%d_%d_%s_%d" % (worker_count, picture_size, rnd, message_count)
+#name = "%s%d_%d_%s_%d" % (datafile, worker_count, picture_size, rnd, message_count)
+name = datafile
 name = name.lower()
 
-print "BUCKET IS %s" % (name)
-
 asg_name = name
-print "going to terminate %s if it exists" % (asg_name)
 try:
     terminate_asg(con, asg_name, s3id, s3pw)
 except Exception, ex:
@@ -101,7 +96,7 @@ if (worker_count % corepervm) > 0:
 node_count = worker_count / corepervm + extra
 node_count = worker_count
 
-cmd = "python listbucket.py %snimbus delete" % (name)
+cmd = "python listbucket.py %s delete" % (name)
 os.system(cmd)
 
 start_tm = datetime.now()
@@ -109,7 +104,6 @@ start_tm = datetime.now()
 print "creating asg %s" % (asg_name)
 create_autoscale_group(con, asg_name, node_count)
 
-print "NAME | %s |" % (name)
 cmd = "python producer.py %d %d %s" % (message_count, picture_size, name)
 print cmd
 rc = os.system(cmd)

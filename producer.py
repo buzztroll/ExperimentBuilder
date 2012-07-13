@@ -36,7 +36,7 @@ def kill_ready():
 
 def get_phantom_con(s3id, s3pw):
     url = os.environ['PHANTOM_URL']
-    print "get phatom con"
+    print "getting the Phatom connection..."
     uparts = urlparse.urlparse(url)
     is_secure = uparts.scheme == 'https'
     region = RegionInfo(uparts.hostname)
@@ -169,8 +169,10 @@ def main():
                 'dashiname': dashi_name}
         msg_list.append(msg)
     random.shuffle(msg_list)
+
+    print "Add the messages to the queue..."
     for msg in msg_list:
-        print str(msg)
+        print "%s %d of %d" % (msg['testname'], msg['rank'], message_count)
         sys.stdout.flush()
         producer.publish(msg,
                      exchange=exchange,

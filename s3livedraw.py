@@ -32,7 +32,7 @@ class Get1File(threading.Thread):
             #self.draw_file(root_filename)
             self.screen_obj.draw_file(root_filename)
             print "removing %s" % (filename)
-            #os.remove(root_filename)
+            os.remove(root_filename)
         except Exception, ex:
             print ex
 
@@ -155,8 +155,8 @@ def setup_screen():
 
 def main(argv=sys.argv):
     bucket_name = argv[1]
-    file_dir = argv[2]
-    image_size = int(argv[3])
+    file_dir = "pixdir"
+    image_size = int(argv[2])
     scale_ratio = float(g_window_size) / float(image_size)
     try:
         os.mkdir(file_dir)
