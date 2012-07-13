@@ -7,6 +7,7 @@ import pygame
 from pygame.locals import *
 import threading
 import signal
+import time
 
 g_window_size = 768
 
@@ -29,8 +30,8 @@ class Get1File(threading.Thread):
             print "unzip %s" % (filename)
             os.system("bunzip2 %s" % (filename))
             print "draw %s" % (filename)
-            #self.draw_file(root_filename)
-            self.screen_obj.draw_file(root_filename)
+            self.draw_file(root_filename)
+            #self.screen_obj.draw_file(root_filename)
             print "removing %s" % (filename)
             os.remove(root_filename)
         except Exception, ex:
@@ -48,6 +49,8 @@ class Get1File(threading.Thread):
                 s_green = int(la[3])
                 s_blue = int(la[4])
                 self.screen_obj.set_pixel((s_kx, s_ky), (s_red, s_green, s_blue, 255))
+                #if line_num % 4096*100 == 0:
+                    #time.sleep(0)
             except Exception, ex:
                 print ex
                 print line
@@ -94,11 +97,12 @@ class GetEvents(threading.Thread):
             gf.start()
 
     def set_pixel(self, loc, c):
-        self.lock.acquire()
+        #self.lock.acquire()
         try:
             self.screen.set_at(loc, c)
         finally:
-            self.lock.release()
+         #   self.lock.release()
+            pass
 
     def draw_file(self, data_file):
         self.lock.acquire()
@@ -119,6 +123,9 @@ class GetEvents(threading.Thread):
                 s_green = int(la[3])
                 s_blue = int(la[4])
                 self.screen.set_at((s_kx, s_ky), (s_red, s_green, s_blue, 255))
+                if line_num % 10000 == 0:
+                    print "%s trying to yield" % (str(threading.current_thread()))
+                    time.sleep(0)
             except Exception, ex:
                 print ex
                 print line
@@ -132,8 +139,7 @@ class GetEvents(threading.Thread):
                 self.get_files()
             except Exception, ex:
                 print ex
-                pygame.time.delay(5000)
-            pygame.time.delay(int(10))
+            time.sleep(5)
 
 
 def cb_get_conn(): 
@@ -180,7 +186,8 @@ def main(argv=sys.argv):
             if event.type == QUIT:
                 g.set_done()
         pygame.display.flip()
-        pygame.time.delay(int(500))
+        pygame.time.delay(int(2000))
+        time.sleep(0)
 
 main()
             
