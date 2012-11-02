@@ -1,7 +1,27 @@
 Start rabbit somewhere.
-   on hotel the image is exprmandelbrotq
+========================
+on hotel the image is exprmandelbrotq (phantom-0.1.gz)
 
-   use the launch plan to start it
+use the launch plan to start it
+
+NEEDED ENVS
+------------
+export EC2_ACCESS_KEY=XXXXXXXXXXXX
+export EC2_SECRET_KEY=XXXXXXXXXXXXXXXXXXXXXXXXXXXX
+export EC2_URL=https://svc.uc.futuregrid.org:8444
+export S3_URL=http://svc.uc.futuregrid.org:8888
+export PHANTOM_URL=https://svc.uc.futuregrid.org:8445
+export FG_CLOUD_NAME=hotel
+
+export PHANTOM_LOCAL_KEY=/home/bresnaha/.ssh/id_rsa
+export PHANTOM_SSH_USERNAME=root
+
+export PHANTOM_KEYNAME=phantomkey
+export RABBIT_EXPR_IMAGE=phantom-0.1.gz
+
+export RABBITMQ_USERNAME=XXX
+export RABBITMQ_PASSWORD=XXXXXXXXXXX
+
 
 edit meta with the rabbitmq hostname and push it into git
 

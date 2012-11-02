@@ -27,11 +27,7 @@ def get_phantom_con(s3id, s3pw):
 
     return con
 
-def create_autoscale_group(con, name, node_count):
-    image = "expr2.gz"
-    lc_name = "expr2@%s" % (os.environ['FG_CLOUD_NAME'])
-    lc = _find_or_create_config(con, "m1.small", image, "nimbusphantom", lc_name)
-
+def create_autoscale_group(con, asg_name, node_count, lc_name):
     asg_name = name
     print "Create the domain %s" % (asg_name)
 
@@ -78,10 +74,18 @@ picture_size = int(sys.argv[2])
 worker_count = int(sys.argv[3])
 
 corepervm = 1
+<<<<<<< Updated upstream
 message_count = worker_count * 1
 
 #name = "%s%d_%d_%s_%d" % (datafile, worker_count, picture_size, rnd, message_count)
 name = datafile
+=======
+worker_count = 4
+message_count = worker_count * 2
+picture_size = 1024*8
+
+name = "newexp%d_%d_%s_%d" % (worker_count, picture_size, rnd, message_count)
+>>>>>>> Stashed changes
 name = name.lower()
 
 asg_name = name
@@ -96,7 +100,7 @@ if (worker_count % corepervm) > 0:
 node_count = worker_count / corepervm + extra
 node_count = worker_count
 
-cmd = "python listbucket.py %s delete" % (name)
+cmd = "python listbucket.py %snimbus delete" % (name)
 os.system(cmd)
 
 start_tm = datetime.now()
@@ -104,6 +108,7 @@ start_tm = datetime.now()
 print "creating asg %s" % (asg_name)
 create_autoscale_group(con, asg_name, node_count)
 
+print "NAME | %s |" % (name)
 cmd = "python producer.py %d %d %s" % (message_count, picture_size, name)
 print cmd
 rc = os.system(cmd)
