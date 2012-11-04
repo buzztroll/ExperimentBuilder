@@ -36,7 +36,7 @@ def kill_ready():
 
 def get_phantom_con(s3id, s3pw):
     url = os.environ['PHANTOM_URL']
-    print "getting the Phatom connection..."
+    print "getting the Phantom connection..."
     uparts = urlparse.urlparse(url)
     is_secure = uparts.scheme == 'https'
     region = RegionInfo(uparts.hostname)
