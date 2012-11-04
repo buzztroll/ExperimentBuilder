@@ -160,11 +160,7 @@ def main():
     msg_list = []
     dashi_name = str(uuid.uuid4()).split('-')[0]
     for i in range(0, message_count):
-<<<<<<< Updated upstream
         msg = {'program': 'python node2.py %d %d %d' % (i, message_count, imgsize),
-=======
-        msg = {'program': 'python node.py %d %d %d' % (i, message_count, imgsize),
->>>>>>> Stashed changes
                 'rank': i,
                 's3url': s3url,
                 's3id': s3id,

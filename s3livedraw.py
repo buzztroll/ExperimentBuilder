@@ -139,12 +139,8 @@ class GetEvents(threading.Thread):
                 self.get_files()
             except Exception, ex:
                 print ex
-<<<<<<< Updated upstream
-            time.sleep(5)
-=======
                 pygame.time.delay(5000)
             pygame.time.delay(int(10))
->>>>>>> Stashed changes
 
 
 def cb_get_conn(): 
@@ -188,11 +184,7 @@ def main(argv=sys.argv):
 
         events = pygame.event.get()
         for event in events:
-<<<<<<< Updated upstream
-            if event.type == QUIT:
-=======
             if event.type == QUIT or event.type == KEYDOWN:
->>>>>>> Stashed changes
                 g.set_done()
         pygame.display.flip()
         pygame.time.delay(int(2000))

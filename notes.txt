@@ -34,11 +34,21 @@ set some envs
     EC2_ACCESS_KEY=
     EC2_URL=
 
+Launch COnfig
+=============
 
-run the test program:
+Make a launch config with the image expr2.gz on hotel in it.
+Start a domain with that launch config using the web application
 
-    runtest_new_domain.py <output file> <round number (anything)> <picture size> <worker count>
+Start demo
+==========
+
+in the same directory as the "meta" file, run:
+
+ python producer.py <number of workers> <size of image (2048)> <unique name>
 
 Run the visualizer
 
-    s3livedraw.py <bucket name (output from bove)> <tempfile dir> <image size being produced>
+    s3livedraw.py <name used above> <image size being produced used above>
+
+pygame is hard to install into a virtual env.  use the system package
